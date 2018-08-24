@@ -1,0 +1,19 @@
+@font-face {
+    font-family: 'roboto';
+    src: url(roboto.ttf);
+}
+:root {
+    --menu-width: 13em;
+    --button-color: white;
+}
+html {
+    font-family: 'roboto';
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
