@@ -3,7 +3,6 @@
     src: url(roboto.ttf);
 }
 :root {
-    --menu-width: 13em;
     --button-color: white;
 }
 html {
@@ -16,4 +15,37 @@ body {
     margin: 0;
     padding: 0;
     height: 100%;
+}
+.in {
+    background-color: white;
+    border: none;
+    outline: none;
+    border-radius: 0.2rem;
+    padding: 0.2rem 0.4rem;
+    font-weight: bold;
+    color: rgb(48, 48, 48);
+    font-family: 'roboto';
+}
+.goto {
+    display: inline-block;
+    cursor: default;
+    padding: 1rem;
+    border: 0;
+    border-radius: 0.25rem;
+    background-color: rgb(212, 236, 250);
+    text-align: center;
+}
+.goto:hover {
+    cursor: pointer;
+    color: white;
+}
+.do {
+    background-color: greenyellow;
+    border: none;
+    outline: none;
+    border-radius: 0.2rem;
+    padding: 0.2rem 0.4rem;
+    font-weight: bold;
+    color: rgb(48, 48, 48);
+    font-family: 'roboto';
 }

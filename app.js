@@ -1,3 +1,11 @@
+function load_script(file) {
+    let script = document.createElement('script');
+    script.src = file
+    document.body.appendChild(script);
+}
+
+load_script('buttons.js');
+
 const backspaceKey = 8
 const deleteKey = 46
 const body = document.body
@@ -12,6 +20,18 @@ function integer_filter(event) {
     event.preventDefault()
 }
 
+function get_budget_page() {
+    if (budget_page) {
+        return budget_page
+    }
+
+    let page = document.createElement('div')
+    page.innerHTML = 'budget'
+
+    budget_page = page
+    return page
+}
+
 function get_retire_page() {
     if (retire_page) {
         return retire_page
@@ -19,83 +39,24 @@ function get_retire_page() {
 
     let page = document.createElement('div')
 
-    let goto_home = document.createElement('div')
-    goto_home.innerHTML = 'home'
-    goto_home.style.cursor = 'pointer'
-    goto_home.onclick = function() {
-        page_switch(get_home_page())
-    }
-    page.appendChild(goto_home)
+    make_text_value(page, 'Annual Inflation %', '2.0')
+    make_text_value(page, 'Annual Stock Return %', '10.0')
+    make_text_value(page, 'Annual Bond Return %', '6.0')
+    make_text_value(page, 'Annual Cash Return %', '1.8')
 
-    let inflation = document.createElement('input')
-    inflation.setAttribute('type', 'text')
-    inflation.setAttribute('placeholder', 'average annual inflation %')
-    inflation.style.display = 'block'
-    page.appendChild(inflation)
+    make_text(page, 'Current Cash')
+    make_text(page, 'Current Stocks')
+    make_text(page, 'Current Bonds')
 
-    let stock_yield = document.createElement('input')
-    stock_yield.setAttribute('type', 'text')
-    stock_yield.setAttribute('placeholder', 'average annual stock yield %')
-    stock_yield.style.display = 'block'
-    page.appendChild(stock_yield)
+    make_text(page, 'Annual Cash Saved')
+    make_text(page, 'Annual Stocks Invested')
+    make_text(page, 'Annual Bonds Invested')
 
-    let bond_yield = document.createElement('input')
-    bond_yield.setAttribute('type', 'text')
-    bond_yield.setAttribute('placeholder', 'average annual bond yield %')
-    bond_yield.style.display = 'block'
-    page.appendChild(bond_yield)
+    make_text(page, 'Retirement Expenses')
+    make_text(page, 'Current Age')
 
-    let savings = document.createElement('input')
-    savings.setAttribute('type', 'text')
-    savings.setAttribute('placeholder', 'current cash savings')
-    savings.onkeydown = integer_filter
-    page.appendChild(savings)
-
-    let stocks = document.createElement('input')
-    stocks.setAttribute('type', 'text')
-    stocks.setAttribute('placeholder', 'current stocks')
-    stocks.onkeydown = integer_filter
-    page.appendChild(stocks)
-
-    let bonds = document.createElement('input')
-    bonds.setAttribute('type', 'text')
-    bonds.setAttribute('placeholder', 'current bonds')
-    bonds.onkeydown = integer_filter
-    page.appendChild(bonds)
-
-    let yearly_savings = document.createElement('input')
-    yearly_savings.setAttribute('type', 'text')
-    yearly_savings.setAttribute('placeholder', 'yearly cash savings')
-    yearly_savings.onkeydown = integer_filter
-    page.appendChild(yearly_savings)
-
-    let yearly_stocks = document.createElement('input')
-    yearly_stocks.setAttribute('type', 'text')
-    yearly_stocks.setAttribute('placeholder', 'yearly invested stocks')
-    yearly_stocks.onkeydown = integer_filter
-    page.appendChild(yearly_stocks)
-
-    let yearly_bonds = document.createElement('input')
-    yearly_bonds.setAttribute('type', 'text')
-    yearly_bonds.setAttribute('placeholder', 'yearly invested bonds')
-    yearly_bonds.onkeydown = integer_filter
-    page.appendChild(yearly_bonds)
-
-    let expenses = document.createElement('input')
-    expenses.setAttribute('type', 'text')
-    expenses.setAttribute('placeholder', 'yearly expenses')
-    page.appendChild(expenses)
-
-    let age = document.createElement('input')
-    age.setAttribute('type', 'text')
-    age.setAttribute('placeholder', 'current age')
-    page.appendChild(age)
-
-    let death = document.createElement('input')
-    death.setAttribute('type', 'text')
-    death.setAttribute('placeholder', 'expected age to live until')
+    let death = make_text_value(page, 'Expected Age to Live', '100')
     death.style.display = 'none'
-    page.appendChild(death)
 
     let specify_death = document.createElement('input')
     specify_death.setAttribute('type', 'radio')
@@ -118,16 +79,13 @@ function get_retire_page() {
     }
     page.appendChild(never_deplete)
 
-    let withdraw = document.createElement('input')
-    withdraw.setAttribute('type', 'text')
-    withdraw.setAttribute('placeholder', 'safe withdraw rate %')
-    page.appendChild(withdraw)
+    make_text_value(page, 'Withdraw Rate %', '4.0')
 
     let result = null
     let image = null
-
     let calculate = document.createElement('button')
-    calculate.innerHTML = 'calculate'
+    calculate.innerHTML = 'Calculate'
+    calculate.classList.add('do')
     calculate.onclick = function() {
         let calc = parseInt(expenses.value) * 25.0
 
@@ -195,22 +153,24 @@ function get_home_page() {
     let page = document.createElement('div')
     
     let header = document.createElement('h1')
-    header.innerHTML = 'fire plan'
+    header.innerHTML = 'Fire Plan'
     page.appendChild(header)
 
     let goto_fire = document.createElement('div')
-    goto_fire.innerHTML = 'retirement calculator'
-    goto_fire.style.cssText = 'cursor:pointer; padding:1rem; border:0; border-radius:0.25rem; background-color:rgb(250, 86, 24); text-align:center;'
-    goto_fire.onmouseover = function() {
-        goto_fire.style.color = 'red'
-    }
-    goto_fire.onmouseleave = function() {
-        goto_fire.style.color = 'black'
-    }
+    goto_fire.innerHTML = 'Retirement'
+    goto_fire.classList.add('goto')
     goto_fire.onclick = function() {
         page_switch(get_retire_page())
     }
     page.appendChild(goto_fire)
+
+    let goto_budget = document.createElement('div')
+    goto_budget.innerHTML = 'Budget'
+    goto_budget.classList.add('goto')
+    goto_budget.onclick = function() {
+        page_switch(get_budget_page())
+    }
+    page.appendChild(goto_budget)
 
     home_page = page
     return page
@@ -223,16 +183,17 @@ function page_switch(to) {
 }
 
 let navbar = document.createElement('div')
-navbar.style.cssText = 'background-color:rgb(128, 128, 255); padding:1rem'
+navbar.style.cssText = 'background-color: rgb(128, 128, 255); padding: 1rem'
 
 let goto_home = document.createElement('div')
-goto_home.innerHTML = 'home'
+goto_home.innerHTML = 'Home'
 goto_home.style.cursor = 'pointer'
 goto_home.onclick = function() {
     page_switch(get_home_page())
 }
 navbar.appendChild(goto_home)
 
+let budget_page = null
 let retire_page = null
 let home_page = null
 let active_page = get_home_page()
