@@ -1,3 +1,7 @@
+function net_worth(cash, stocks, bonds) {
+    return cash + stocks + bonds
+}
+
 function get_retire_page() {
     if (retire_page) {
         return retire_page
@@ -60,10 +64,16 @@ function get_retire_page() {
     calculate.classList.add('do')
     calculate.onclick = function() {
 
+        if (expenses.value === '') {
+            expenses.style.color = 'red'
+            return
+        }
+
         let inflation_value = parseFloat(inflation.value) / 100.0
         let stock_return_value = parseFloat(stock_return.value) / 100.0
         let bond_return_value = parseFloat(bond_return.value) / 100.0
         let cash_return_value = parseFloat(cash_return.value) / 100.0
+        let withdraw_rate_value = parseFloat(withdraw_rate.value) / 100.0
         let current_cash_value = parseFloat(current_cash.value)
         let current_stocks_value = parseFloat(current_stocks.value)
         let current_bonds_value = parseFloat(current_bonds.value)
@@ -72,15 +82,35 @@ function get_retire_page() {
         let annual_bond_invested_value = parseFloat(annual_bond_invested.value)
         let expense_value = parseFloat(expenses.value)
         let age_value = parseFloat(age.value)
-        let withdraw_rate_value = parseFloat(withdraw_rate.value) / 100.0
 
         let assets_required = expense_value / withdraw_rate_value
-        let retirement_age = age_value + 10
+        let retirement_age = age_value
+
+        while (net_worth(current_cash_value, current_stocks_value, current_bonds_value) < assets_required && current_cash_value > 0 && retirement_age < 999) {
+
+            current_cash_value += annual_cash_saved_value
+            current_stocks_value += annual_stock_invested_value
+            current_bonds_value += annual_bond_invested_value
+
+            current_cash_value *= 1.0 + cash_return_value
+            current_stocks_value *= 1.0 + stock_return_value
+            current_bonds_value *= 1.0 + bond_return_value
+
+            expense_value *= 1.0 + inflation_value
+            assets_required = expense_value / withdraw_rate_value
+
+            retirement_age++
+        }
 
         if (result === null) {
             result = document.createElement('div')
             page.appendChild(result)
         }
+
+        if (retirement_age === 999) {
+            retirement_age = 'Not able to retire.'
+        }
+
         result.innerHTML = `Assets required: $ ${assets_required.toLocaleString()} Retirement Age: ${retirement_age}`
 
         /* let expense_list = [expense_value]
