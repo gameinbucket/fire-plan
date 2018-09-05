@@ -13,24 +13,24 @@ function get_retire_page() {
     let group = document.createElement('div')
     group.classList.add('input-group')
 
-    let inflation = make_text_value(group, 'Annual Inflation %', '2.0')
-    let stock_return = make_text_value(group, 'Annual Stock Return %', '10.0')
-    let bond_return = make_text_value(group, 'Annual Bond Return %', '6.0')
-    let cash_return = make_text_value(group, 'Annual Cash Return %', '1.8')
+    let inflation = new Field(group, 'Annual Inflation %', '2.0')
+    let stock_return = new Field(group, 'Annual Stock Return %', '10.0')
+    let bond_return = new Field(group, 'Annual Bond Return %', '6.0')
+    let cash_return = new Field(group, 'Annual Cash Return %', '1.8')
 
-    let current_cash = make_text(group, 'Current Cash $')
-    let current_stocks = make_text(group, 'Current Stocks $')
-    let current_bonds = make_text(group, 'Current Bonds $')
+    let current_cash = new Field(group, 'Current Cash $', '')
+    let current_stocks = new Field(group, 'Current Stocks $', '')
+    let current_bonds = new Field(group, 'Current Bonds $', '')
 
-    let annual_cash_saved = make_text(group, 'Annual Cash Saved $')
-    let annual_stock_invested = make_text(group, 'Annual Stocks Invested $')
-    let annual_bond_invested = make_text(group, 'Annual Bonds Invested $')
+    let annual_cash_saved = new Field(group, 'Annual Cash Saved $', '')
+    let annual_stock_invested = new Field(group, 'Annual Stocks Invested $', '')
+    let annual_bond_invested = new Field(group, 'Annual Bonds Invested $', '')
 
-    let expenses = make_text(group, 'Retirement Expenses $')
-    let age = make_text(group, 'Current Age')
+    let expenses = new Field(group, 'Retirement Expenses $', '')
+    let age = new Field(group, 'Current Age', '')
 
-    let death = make_text_value(group, 'Expected Age to Live', '120')
-    death.style.display = 'none'
+    let death = new Field(group, 'Expected Age to Live', '120')
+    death.div.style.display = 'none'
 
     let specify_death = document.createElement('input')
     specify_death.classList.add('in')
@@ -39,7 +39,7 @@ function get_retire_page() {
     specify_death.setAttribute('value', 'specify-age')
     specify_death.innerHTML = 'specify age'
     specify_death.onclick = function() {
-        death.style.display = 'block'
+        death.div.style.display = 'inline-block'
     }
     group.appendChild(specify_death)
 
@@ -51,11 +51,11 @@ function get_retire_page() {
     never_deplete.setAttribute('checked', '')
     never_deplete.innerHTML = 'never deplete'
     never_deplete.onclick = function() {
-        death.style.display = 'none'
+        death.div.style.display = 'none'
     }
     group.appendChild(never_deplete)
 
-    let withdraw_rate = make_text_value(group, 'Withdraw Rate %', '4.0')
+    let withdraw_rate = new Field(group, 'Withdraw Rate %', '4.0')
 
     let result = null
     let image = null
@@ -64,24 +64,26 @@ function get_retire_page() {
     calculate.classList.add('do')
     calculate.onclick = function() {
 
-        if (expenses.value === '') {
-            expenses.style.color = 'red'
+        if (expenses.input.value === '') {
+            expenses.label.style.color = 'red'
             return
+        } else {
+            expenses.label.style.color = 'black'
         }
 
-        let inflation_value = parseFloat(inflation.value) / 100.0
-        let stock_return_value = parseFloat(stock_return.value) / 100.0
-        let bond_return_value = parseFloat(bond_return.value) / 100.0
-        let cash_return_value = parseFloat(cash_return.value) / 100.0
-        let withdraw_rate_value = parseFloat(withdraw_rate.value) / 100.0
-        let current_cash_value = parseFloat(current_cash.value)
-        let current_stocks_value = parseFloat(current_stocks.value)
-        let current_bonds_value = parseFloat(current_bonds.value)
-        let annual_cash_saved_value = parseFloat(annual_cash_saved.value)
-        let annual_stock_invested_value = parseFloat(annual_stock_invested.value)
-        let annual_bond_invested_value = parseFloat(annual_bond_invested.value)
-        let expense_value = parseFloat(expenses.value)
-        let age_value = parseFloat(age.value)
+        let inflation_value = parseFloat(inflation.input.value) / 100.0
+        let stock_return_value = parseFloat(stock_return.input.value) / 100.0
+        let bond_return_value = parseFloat(bond_return.input.value) / 100.0
+        let cash_return_value = parseFloat(cash_return.input.value) / 100.0
+        let withdraw_rate_value = parseFloat(withdraw_rate.input.value) / 100.0
+        let current_cash_value = parseFloat(current_cash.input.value)
+        let current_stocks_value = parseFloat(current_stocks.input.value)
+        let current_bonds_value = parseFloat(current_bonds.input.value)
+        let annual_cash_saved_value = parseFloat(annual_cash_saved.input.value)
+        let annual_stock_invested_value = parseFloat(annual_stock_invested.input.value)
+        let annual_bond_invested_value = parseFloat(annual_bond_invested.input.value)
+        let expense_value = parseFloat(expenses.input.value)
+        let age_value = parseFloat(age.input.value)
 
         let assets_required = expense_value / withdraw_rate_value
         let retirement_age = age_value

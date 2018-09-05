@@ -1,23 +1,19 @@
-function make_text(root, name) {
-    let div = document.createElement('div')
-    div.classList.add('in-div')
-    root.appendChild(div)
-
-    let label = document.createElement('div')
-    label.innerHTML = name
-    label.classList.add('in-label')
-    div.appendChild(label)
-
-    let input = document.createElement('input')
-    input.setAttribute('type', 'text')
-    input.classList.add('in')
-    div.appendChild(input)
-
-    return input
-}
-
-function make_text_value(root, name, value) {
-    let input = make_text(root, name)
-    input.value = value
-    return input
+class Field {
+    constructor(root, name, value) {
+        this.div = document.createElement('div')
+        this.div.classList.add('in-div')
+        root.appendChild(this.div)
+    
+        this.label = document.createElement('div')
+        this.label.innerHTML = name
+        this.label.classList.add('in-label')
+        this.div.appendChild(this.label)
+    
+        this.input = document.createElement('input')
+        this.input.setAttribute('type', 'text')
+        this.input.classList.add('in')
+        this.div.appendChild(this.input)
+    
+        this.input.value = value
+    }
 }
