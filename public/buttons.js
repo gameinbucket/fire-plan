@@ -15,5 +15,23 @@ class Field {
         this.div.appendChild(this.input)
     
         this.input.value = value
+
+        this.color = 'black'
+        this.invalid_color = 'red'
+    }
+    invalid() {
+        if (this.input.value === '') {
+            this.label.style.color = this.invalid_color
+            return true
+        } else {
+            this.label.style.color = this.color
+            return false
+        }
+    }
+}
+
+class OptionalField extends Field {
+    invalid() {
+    
     }
 }

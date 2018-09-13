@@ -60,6 +60,14 @@ function page_switch(to) {
     active_page = to
 }
 
+function get_retire_page() {
+    if (retire_page) {
+        return retire_page
+    }
+    retire_page = new Retirement()
+    return retire_page.page
+}
+
 let budget_page = null
 let retire_page = null
 let home_page = null
