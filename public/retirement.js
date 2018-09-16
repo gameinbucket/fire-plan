@@ -85,14 +85,25 @@ class Retirement {
 
         this.result = null
         this.page = page
+
+        let call = function(data) {
+            console.log(data)
+        }
+        let user = `ABC-DEF-HKILMN`
+        let data = `req:get-retire user:${user} `
+        Network.Request('POST', 'api', data, call)
     }   
     net_worth(cash, stocks, bonds) {
         return cash + stocks + bonds
     }
     do_calculate() {
-        Network.Request('POST', 'poop', (data) => {
-            console.log("the response is: " + data)
-        })
+        let send = `${this.inflation.input.value}`
+        let call = function(data) {
+            console.log(data)
+        }
+        let user = `ABC-DEF-HKILMN`
+        let data = `req:save-retire user:${user} inflation:${this.inflation.input.value} `
+        Network.Request('POST', 'api', data, call)
 
         let inflation_value = parseFloat(this.inflation.input.value) / 100.0
         let stock_return_value = parseFloat(this.stock_return.input.value) / 100.0

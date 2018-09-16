@@ -1,14 +1,19 @@
 class Network
 {
-    static Request(type, data, callback) {
-        var request = new XMLHttpRequest();
-        request.open(type, data);
-        request.responseType = 'text';
-        request.onreadystatechange = function() {
-            if (request.readyState === 4 && request.status === 200) {
-                callback(request.responseText);
+    static Request(method, url, data, callback) {
+        const content_header = 'Content-Type'
+        const type_text = 'text/plain'
+        const ok = 200
+
+        const xhr = new XMLHttpRequest()
+        xhr.open(method, url)
+        xhr.setRequestHeader(content_header, type_text)
+        xhr.responseType = type_text
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === ok) {
+                callback(xhr.responseText)
             }
         }
-        request.send();
+        xhr.send(data)
     }
 }
