@@ -90,6 +90,10 @@ class Retirement {
         return cash + stocks + bonds
     }
     do_calculate() {
+        Network.Request('POST', 'poop', (data) => {
+            console.log("the response is: " + data)
+        })
+
         let inflation_value = parseFloat(this.inflation.input.value) / 100.0
         let stock_return_value = parseFloat(this.stock_return.input.value) / 100.0
         let bond_return_value = parseFloat(this.bond_return.input.value) / 100.0
@@ -175,5 +179,11 @@ class Retirement {
             page.appendChild(image)
         }
         image.src = canvas.toDataURL()
+    }
+    save() {
+
+    }
+    load() {
+        
     }
 }

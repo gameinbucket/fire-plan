@@ -1,7 +1,5 @@
-const http = require('http')
-const port = 3030
 
-function serve(req, res) {
+function process(req, res) {
     if (req.method === 'POST') {
         let body = []
         req.on('data', (chunk) => {
@@ -10,9 +8,12 @@ function serve(req, res) {
             body = Buffer.concat(body).toString()
             res.end(body)
         })
-        return
+        res.setHeader('Content-type', 'text/plain')
+        res.end('this is a POST api call')
+    } else {
+        res.setHeader('Content-type', 'text/plain')
+        res.end('this is a GET api call')
     }
 }
 
-http.createServer(serve).listen(port)
-console.log(`listening on port ${port}`)
+module.exports.process = process

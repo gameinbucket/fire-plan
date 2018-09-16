@@ -1,6 +1,7 @@
 const http = require('http')
 const fs = require('fs')
 const path = require('path')
+const api = require('./api')
 
 const port = 3000
 const public = '../public'
@@ -8,6 +9,9 @@ const home = 'app.html'
 const content_header = 'Content-type'
 const error_message = 'internal server error'
 const plain_text = 'text/plain'
+
+// curl -X POST http://localhost:3000/api/
+// curl -d '{"key1":"value1", "key2":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:3000/api/
 
 const extension_map = {
     '.ico': 'image/x-icon',
@@ -26,8 +30,7 @@ const file_cache = {}
 function serve(req, res) {
 
     if (req.url.startsWith('/api/')) {
-        res.setHeader(content_header, plain_text)
-        res.end('this is an rest api call')
+        api.process(req, res)
         return
     }
 
