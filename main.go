@@ -51,11 +51,6 @@ func parse(message []byte) map[string]string {
 			start = end + 1
 		}
 	}
-
-	for key, value := range store {
-		fmt.Println("k=", key, "v=", value)
-	}
-
 	return store
 }
 
@@ -69,7 +64,6 @@ func serve(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				panic(err)
 			}
-			w.Write(body)
 
 			store := parse(body)
 			if store["req"] == "save-retire" {
@@ -114,8 +108,11 @@ func serve(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					fmt.Println(err)
 				} else {
-					w.Write([]byte("retrieved data = "))
-					w.Write(inflation)
+					message := strings.Builder{}
+					message.WriteString("inflation:")
+					message.Write(inflation)
+					message.WriteString(" ")
+					w.Write([]byte(message.String()))
 				}
 			}
 		} else {

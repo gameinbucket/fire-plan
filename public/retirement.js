@@ -87,7 +87,10 @@ class Retirement {
         this.page = page
 
         let call = function(data) {
-            console.log(data)
+            let store = Parse.Message(data)
+            if (store['inflation']) {
+                self.inflation.input.value = store['inflation']
+            }
         }
         let user = `ABC-DEF-HKILMN`
         let data = `req:get-retire user:${user} `
@@ -97,7 +100,6 @@ class Retirement {
         return cash + stocks + bonds
     }
     do_calculate() {
-        let send = `${this.inflation.input.value}`
         let call = function(data) {
             console.log(data)
         }
