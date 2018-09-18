@@ -8,20 +8,24 @@ class Retirement {
         let group = document.createElement('div')
         group.classList.add('input-group')
 
-        this.inflation = new Field(group, 'Annual Inflation %', '2.0')
-        this.stock_return = new Field(group, 'Annual Stock Return %', '10.0')
-        this.bond_return = new Field(group, 'Annual Bond Return %', '6.0')
-        this.cash_return = new Field(group, 'Annual Cash Return %', '1.8')
-        this.current_cash = new Field(group, 'Current Cash $', '')
-        this.current_stocks = new Field(group, 'Current Stocks $', '')
-        this.current_bonds = new Field(group, 'Current Bonds $', '')
-        this.annual_cash_saved = new Field(group, 'Annual Cash Saved $', '')
-        this.annual_stock_invested = new Field(group, 'Annual Stocks Invested $', '')
-        this.annual_bond_invested = new Field(group, 'Annual Bonds Invested $', '')
-        this.expenses = new Field(group, 'Retirement Expenses $', '')
-        this.age = new Field(group, 'Current Age', '')
+        let form = new Map()
+        this.form = form
 
-        this.death = new Field(group, 'Expected Age to Live', '120')
+        this.inflation = new Field(group, form, 'inflation', 'Annual Inflation %', '2.0')
+        this.stock_return = new Field(group, form, 'stock.return', 'Annual Stock Return %', '10.0')
+        this.bond_return = new Field(group, form, 'bond.return', 'Annual Bond Return %', '6.0')
+        this.cash_return = new Field(group, form, 'cash.return', 'Annual Cash Return %', '1.8')
+        this.current_cash = new Field(group, form, 'current.cash', 'Current Cash $', '')
+        this.current_stocks = new Field(group, form, 'current.stocks', 'Current Stocks $', '')
+        this.current_bonds = new Field(group, form, 'current.bonds', 'Current Bonds $', '')
+        this.annual_cash_saved = new Field(group, form, 'annual.cash', 'Annual Cash Saved $', '')
+        this.annual_stock_invested = new Field(group, form, 'annual.stocks', 'Annual Stocks Invested $', '')
+        this.annual_bond_invested = new Field(group, form, 'annual.bonds', 'Annual Bonds Invested $', '')
+        this.expenses = new Field(group, form, 'expenses', 'Retirement Expenses $', '')
+        this.age = new Field(group, form, 'age', 'Current Age', '')
+        this.withdraw_rate = new Field(group, form, 'withdraw', 'Withdraw Rate %', '4.0')
+
+        /* this.death = new Field(group, 'Expected Age to Live', '120')
         this.death.div.style.display = 'none'
 
         this.specify_death = document.createElement('input')
@@ -45,33 +49,15 @@ class Retirement {
         this.never_deplete.onclick = function() {
             self.death.div.style.display = 'none'
         }
-        group.appendChild(this.never_deplete)
-
-        this.withdraw_rate = new Field(group, 'Withdraw Rate %', '4.0')
-
-        this.form = [
-            this.inflation,
-            this.stock_return,
-            this.bond_return,
-            this.cash_return,
-            this.withdraw_rate,
-            this.current_cash,
-            this.current_stocks,
-            this.current_bonds,
-            this.annual_cash_saved,
-            this.annual_stock_invested,
-            this.annual_bond_invested,
-            this.expenses,
-            this.age
-        ]
+        group.appendChild(this.never_deplete) */
 
         this.calculate = document.createElement('button')
         this.calculate.innerHTML = 'Calculate'
         this.calculate.classList.add('do')
         this.calculate.onclick = function() {
             let valid = true
-            for (let i = 0; i < self.form.length; i++) {
-                if (self.form[i].invalid()) {
+            for (let key in self.form) {
+                if (self.form[key].invalid()) {
                     valid = false
                 }
             }
@@ -88,8 +74,10 @@ class Retirement {
 
         let call = function(data) {
             let store = Parse.Message(data)
-            if (store['inflation']) {
-                self.inflation.input.value = store['inflation']
+            for (let key in self.form) {
+                if (store[key]) {
+                    self.form[key].input.value = store[key]
+                }
             }
         }
         let user = `ABC-DEF-HKILMN`
@@ -104,7 +92,11 @@ class Retirement {
             console.log(data)
         }
         let user = `ABC-DEF-HKILMN`
-        let data = `req:save-retire user:${user} inflation:${this.inflation.input.value} `
+        let data = `req:save-retire user:${user} `
+        for (let key in this.form) {
+            let field = this.form[key]
+            data += `${field.name}:${field.input.value} `
+        }
         Network.Request('POST', 'api', data, call)
 
         let inflation_value = parseFloat(this.inflation.input.value) / 100.0

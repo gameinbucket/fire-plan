@@ -31,6 +31,22 @@ var extensions = map[string]string{
 	".mp3":  "audio/mpeg",
 }
 
+var retireFields = [...]string{
+	"inflation",
+	"stock.return",
+	"bond.return",
+	"cash.return",
+	"current.cash",
+	"current.stocks",
+	"current.bonds",
+	"annual.cash",
+	"annual.stocks",
+	"annual.bonds",
+	"expenses",
+	"age",
+	"withdraw",
+}
+
 var fileCache = map[string][]byte{}
 var server *http.Server
 var db *bolt.DB
@@ -54,6 +70,79 @@ func parse(message []byte) map[string]string {
 	return store
 }
 
+func handleSaveRetire(store map[string]string, w http.ResponseWriter) {
+	user := store["user"]
+	err := db.Update(func(t *bolt.Tx) error {
+		var err error
+		userBucket, err := t.CreateBucketIfNotExists([]byte(user))
+		if err != nil {
+			return fmt.Errorf("failed create bucket: %s", err)
+		}
+		retireBucket, err := userBucket.CreateBucketIfNotExists([]byte("retire"))
+		if err != nil {
+			return fmt.Errorf("failed create bucket: %s", err)
+		}
+		for _, field := range retireFields {
+			val, ok := store[field]
+			if ok {
+				putBucket(retireBucket, field, val)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Println(err)
+	}
+}
+
+func handleGetRetire(store map[string]string, w http.ResponseWriter) {
+	user := store["user"]
+	message := strings.Builder{}
+
+	err := db.View(func(t *bolt.Tx) error {
+		userBucket := t.Bucket([]byte(user))
+		if userBucket == nil {
+			return nil
+		}
+		retireBucket := userBucket.Bucket([]byte("retire"))
+		if retireBucket == nil {
+			return nil
+		}
+		cursor := retireBucket.Cursor()
+		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
+			message.Write(key)
+			message.WriteString(":")
+			message.Write(value)
+			message.WriteString(" ")
+		}
+		return nil
+	})
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Println(err)
+	} else {
+		w.Write([]byte(message.String()))
+	}
+}
+
+func handleAPI(store map[string]string, w http.ResponseWriter) {
+	switch store["req"] {
+	case "save-retire":
+		handleSaveRetire(store, w)
+	case "get-retire":
+		handleGetRetire(store, w)
+	}
+}
+
+func putBucket(b *bolt.Bucket, k, v string) {
+	err := b.Put([]byte(k), []byte(v))
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func serve(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.Method, r.URL.Path)
 
@@ -64,57 +153,9 @@ func serve(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				panic(err)
 			}
-
 			store := parse(body)
-			if store["req"] == "save-retire" {
-				user := store["user"]
-				inflation := store["inflation"]
+			handleAPI(store, w)
 
-				err = db.Update(func(tx *bolt.Tx) error {
-					var err error
-					bucket := tx.Bucket([]byte(user))
-					if bucket == nil {
-						bucket, err = tx.CreateBucket([]byte(user))
-					}
-					if err != nil {
-						return fmt.Errorf("failed create bucket: %s", err)
-					}
-					err = bucket.Put([]byte("inflation"), []byte(inflation))
-					return err
-				})
-				if err != nil {
-					panic(err)
-				}
-				w.Write([]byte("saved data!"))
-
-			} else if store["req"] == "get-retire" {
-				user := store["user"]
-				var inflation []byte
-
-				err := db.View(func(tx *bolt.Tx) error {
-					bucket := tx.Bucket([]byte(user))
-					if bucket == nil {
-						return nil
-					}
-					cursor := bucket.Cursor()
-					for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-						if string(key) == "inflation" {
-							inflation = value
-						}
-					}
-					return nil
-				})
-
-				if err != nil {
-					fmt.Println(err)
-				} else {
-					message := strings.Builder{}
-					message.WriteString("inflation:")
-					message.Write(inflation)
-					message.WriteString(" ")
-					w.Write([]byte(message.String()))
-				}
-			}
 		} else {
 			w.Header().Set(contentType, textPlain)
 			w.Write([]byte("GET " + r.URL.Path))
@@ -129,13 +170,17 @@ func serve(w http.ResponseWriter, r *http.Request) {
 		path = dir + r.URL.Path
 	}
 
-	contents, ok := fileCache[path]
-	typ := extensions[filepath.Ext(path)]
+	typ, ok := extensions[filepath.Ext(path)]
+	if !ok {
+		return
+	}
 
+	contents, ok := fileCache[path]
+	ok = false
 	if !ok {
 		file, err := os.Open(path)
 		if err != nil {
-			panic(err)
+			return
 		}
 		contents, err = ioutil.ReadAll(file)
 		if err != nil {

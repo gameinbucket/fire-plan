@@ -1,11 +1,15 @@
 class Field {
-    constructor(root, name, value) {
+    constructor(root, form, name, label_name, value) {
+        
+        form[name] = this
+        this.name = name
+
         this.div = document.createElement('div')
         this.div.classList.add('in-div')
         root.appendChild(this.div)
     
         this.label = document.createElement('div')
-        this.label.innerHTML = name
+        this.label.innerHTML = label_name
         this.label.classList.add('in-label')
         this.div.appendChild(this.label)
     
