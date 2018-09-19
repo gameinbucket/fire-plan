@@ -68,6 +68,9 @@ function get_retire_page() {
     return retire_page.page
 }
 
+let user = new User()
+user.name = 'godzilla'
+user.ticket = localStorage.getItem('ticket')
 let budget_page = null
 let retire_page = null
 let home_page = null

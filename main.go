@@ -29,6 +29,8 @@ var extensions = map[string]string{
 	".jpg":  "image/jpeg",
 	".wav":  "audio/wav",
 	".mp3":  "audio/mpeg",
+	".ico":  "image/x-icon",
+	".ttf":  "application/font-ttf",
 }
 
 var fileCache = map[string][]byte{}
@@ -56,18 +58,29 @@ func parse(message []byte) map[string]string {
 }
 
 func handleAPI(store map[string]string, w http.ResponseWriter) {
-	user := store["user"]
-	ticket := store["ticket"]
-	trueTicket, ok := tickets[user]
-	if !ok || ticket != trueTicket {
+	user, ok := store["user"]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	userTicket, ok := store["ticket"]
+	if !ok {
+		if store["req"] == "sign-in" {
+			signIn(store, w)
+		} else if store["req"] == "sign-up" {
+			signUp(store, w)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+		}
+		return
+	}
+	serverTicket, ok := tickets[user]
+	if !ok || userTicket != serverTicket {
 		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("error:bad_ticket "))
 		return
 	}
 	switch store["req"] {
-	case "signup":
-		signUp(store, w)
-	case "signin":
-		signIn(store, w)
 	case "save-retire":
 		saveRetire(store, w)
 	case "get-retire":
@@ -119,7 +132,6 @@ func serve(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contents, ok := fileCache[path]
-	ok = false
 	if !ok {
 		file, err := os.Open(path)
 		if err != nil {

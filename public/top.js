@@ -38,9 +38,35 @@ function get_info() {
 }
 
 function sign_in() {
-    console.log('sign in')
+    let call = function(data) {
+        let store = Parse.Message(data)
+        if (store['error']) {
+            console.log('error ' + store['error'])
+            return
+        }
+        if (store['ticket']) {
+            user.ticket = store['ticket']
+            localStorage.setItem('ticket', user.ticket)
+        }
+    }
+    let password = `abcdf`
+    let data = `req:sign-in user:${user.name} password:${password} `
+    Network.Request(data, call)
 }
 
 function sign_up() {
-    console.log('sign up')
+    let call = function(data) {
+        let store = Parse.Message(data)
+        if (store['error']) {
+            console.log('error ' + store['error'])
+            return
+        }
+        if (store['ticket']) {
+            user.ticket = store['ticket']
+            localStorage.setItem('ticket', user.ticket)
+        }
+    }
+    let password = `abcdf`
+    let data = `req:sign-up user:${user.name} password:${password} `
+    Network.Request(data, call)
 }

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 
@@ -20,25 +22,31 @@ func checkPassword(password, hash string) bool {
 }
 
 func signUp(store map[string]string, w http.ResponseWriter) {
-	user := []byte(store["user"])
+	user := store["user"]
 	password := store["password"]
 	err := db.Update(func(t *bolt.Tx) error {
 		var err error
-		userBucket := t.Bucket(user)
+		userBucket := t.Bucket([]byte(user))
 		if userBucket != nil {
 			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("error:user_already_exists "))
 			return nil
 		}
-		userBucket, err = t.CreateBucket(user)
+		userBucket, err = t.CreateBucket([]byte(user))
 		if err != nil {
 			return fmt.Errorf("failed create bucket: %s", err)
 		}
 		passwordHash, _ := hashPassword(password)
 		userBucket.Put(passwordKey, passwordHash)
+		ticket := handleTicket(user)
+		w.Write([]byte("ticket:"))
+		w.Write([]byte(ticket))
+		w.Write([]byte(" "))
 		return nil
 	})
 	if err != nil {
 		fmt.Println(err)
+		w.Write([]byte("error:something_went_wrong "))
 	}
 }
 
@@ -56,13 +64,29 @@ func signIn(store map[string]string, w http.ResponseWriter) {
 	})
 	if err == nil {
 		if checkPassword(password, passwordHash) {
-			ticket := []byte("blah")
-			w.Write(ticket)
+			ticket := handleTicket(user)
+			w.Write([]byte("ticket:"))
+			w.Write([]byte(ticket))
+			w.Write([]byte(" "))
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("error:username_or_password_incorrect "))
 		}
 		return
 	}
-	w.WriteHeader(http.StatusInternalServerError)
 	fmt.Println(err)
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte("error:something_went_wrong "))
+}
+
+func handleTicket(user string) string {
+	const len = 32
+	bytes := make([]byte, len)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic(err)
+	}
+	ticket := base64.URLEncoding.EncodeToString(bytes)
+	tickets[user] = ticket
+	return ticket
 }

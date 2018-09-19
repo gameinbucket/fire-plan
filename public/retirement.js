@@ -74,30 +74,36 @@ class Retirement {
 
         let call = function(data) {
             let store = Parse.Message(data)
+            if (store['error']) {
+                console.log(`error ${store['error']}`)
+                return
+            }
             for (let key in self.form) {
                 if (store[key]) {
                     self.form[key].input.value = store[key]
                 }
             }
         }
-        let user = `ABC-DEF-HKILMN`
-        let data = `req:get-retire user:${user} `
-        Network.Request('POST', 'api', data, call)
+        let data = `req:get-retire user:${user.name} ticket:${user.ticket} `
+        Network.Request(data, call)
     }   
     net_worth(cash, stocks, bonds) {
         return cash + stocks + bonds
     }
     do_calculate() {
         let call = function(data) {
-            console.log(data)
+            let store = Parse.Message(data)
+            if (store['error']) {
+                console.log(`error ${store['error']}`)
+                return
+            }
         }
-        let user = `ABC-DEF-HKILMN`
-        let data = `req:save-retire user:${user} `
+        let data = `req:save-retire user:${user.name} ticket:${user.ticket} `
         for (let key in this.form) {
             let field = this.form[key]
             data += `${field.name}:${field.input.value} `
         }
-        Network.Request('POST', 'api', data, call)
+        Network.Request(data, call)
 
         let inflation_value = parseFloat(this.inflation.input.value) / 100.0
         let stock_return_value = parseFloat(this.stock_return.input.value) / 100.0
