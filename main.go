@@ -31,23 +31,8 @@ var extensions = map[string]string{
 	".mp3":  "audio/mpeg",
 }
 
-var retireFields = [...]string{
-	"inflation",
-	"stock.return",
-	"bond.return",
-	"cash.return",
-	"current.cash",
-	"current.stocks",
-	"current.bonds",
-	"annual.cash",
-	"annual.stocks",
-	"annual.bonds",
-	"expenses",
-	"age",
-	"withdraw",
-}
-
 var fileCache = map[string][]byte{}
+var tickets = map[string]string{}
 var server *http.Server
 var db *bolt.DB
 
@@ -70,69 +55,27 @@ func parse(message []byte) map[string]string {
 	return store
 }
 
-func handleSaveRetire(store map[string]string, w http.ResponseWriter) {
-	user := store["user"]
-	err := db.Update(func(t *bolt.Tx) error {
-		var err error
-		userBucket, err := t.CreateBucketIfNotExists([]byte(user))
-		if err != nil {
-			return fmt.Errorf("failed create bucket: %s", err)
-		}
-		retireBucket, err := userBucket.CreateBucketIfNotExists([]byte("retire"))
-		if err != nil {
-			return fmt.Errorf("failed create bucket: %s", err)
-		}
-		for _, field := range retireFields {
-			val, ok := store[field]
-			if ok {
-				putBucket(retireBucket, field, val)
-			}
-		}
-		return nil
-	})
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println(err)
-	}
-}
-
-func handleGetRetire(store map[string]string, w http.ResponseWriter) {
-	user := store["user"]
-	message := strings.Builder{}
-
-	err := db.View(func(t *bolt.Tx) error {
-		userBucket := t.Bucket([]byte(user))
-		if userBucket == nil {
-			return nil
-		}
-		retireBucket := userBucket.Bucket([]byte("retire"))
-		if retireBucket == nil {
-			return nil
-		}
-		cursor := retireBucket.Cursor()
-		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-			message.Write(key)
-			message.WriteString(":")
-			message.Write(value)
-			message.WriteString(" ")
-		}
-		return nil
-	})
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println(err)
-	} else {
-		w.Write([]byte(message.String()))
-	}
-}
-
 func handleAPI(store map[string]string, w http.ResponseWriter) {
+	user := store["user"]
+	ticket := store["ticket"]
+	trueTicket, ok := tickets[user]
+	if !ok || ticket != trueTicket {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	switch store["req"] {
+	case "signup":
+		signUp(store, w)
+	case "signin":
+		signIn(store, w)
 	case "save-retire":
-		handleSaveRetire(store, w)
+		saveRetire(store, w)
 	case "get-retire":
-		handleGetRetire(store, w)
+		getRetire(store, w)
+	case "save-budget":
+		saveBudget(store, w)
+	case "get-budget":
+		getBudget(store, w)
 	}
 }
 
