@@ -1,3 +1,12 @@
+function import_script(src, call) {
+    let script = document.createElement('script')
+    script.src = src
+    script.async = false
+    script.onreadystatechange = call
+    script.onload = call
+    document.head.appendChild(script)
+}
+
 const backspaceKey = 8
 const deleteKey = 46
 const body = document.body
@@ -12,60 +21,42 @@ function integer_filter(event) {
     event.preventDefault()
 }
 
-function get_budget_page() {
-    if (budget_page) {
-        return budget_page
-    }
-
-    let page = document.createElement('div')
-    page.classList.add('content')
-    page.innerHTML = 'budget'
-
-    budget_page = page
-    return page
+function get_dashboard() {
+    dashboard_page = new Dashboard()
+    return dashboard_page
 }
 
-function get_home_page() {
-    if (home_page) {
-        return home_page
-    }
+function switch_dashboard() {
+    page_switch(dashboard_page)
+}
 
-    let page = document.createElement('div')
-    page.classList.add('content')
-    
-    let retirement = document.createElement('div')
-    retirement.innerHTML = 'Retirement'
-    retirement.classList.add('goto')
-    retirement.onclick = function() {
-        page_switch(get_retire_page())
+function switch_retire_page() {
+    if (retire_page) {
+        page_switch(retire_page)
+    } else {
+        import_script('retirement.js', function() {
+            retire_page = new Retirement()
+            page_switch(retire_page)
+        })
     }
-    
-    let budget = document.createElement('div')
-    budget.innerHTML = 'Budget'
-    budget.classList.add('goto')
-    budget.onclick = function() {
-        page_switch(get_budget_page())
+}
+
+function switch_budget_page() {
+    if (budget_page) {
+        page_switch(budget_page)
+    } else {
+        import_script('budget.js', function() {
+            budget_page = new Budget()
+            page_switch(budget_page)
+        })
     }
-
-    page.appendChild(retirement)
-    page.appendChild(budget)
-
-    home_page = page
-    return page
 }
 
 function page_switch(to) {
-    body.removeChild(active_page)
-    body.appendChild(to)
+    body.removeChild(active_page.page)
+    body.appendChild(to.page)
     active_page = to
-}
-
-function get_retire_page() {
-    if (retire_page) {
-        return retire_page
-    }
-    retire_page = new Retirement()
-    return retire_page.page
+    title_label.innerHTML = active_page.name
 }
 
 let user = new User()
@@ -73,11 +64,12 @@ user.name = 'godzilla'
 user.ticket = localStorage.getItem('ticket')
 let budget_page = null
 let retire_page = null
-let home_page = null
-let active_page = get_home_page()
+let dashboard_page = null
+let title_label = null
+let active_page = get_dashboard()
 
 window.onload = function() {
     body.appendChild(get_nav())
     body.appendChild(get_info())
-    body.appendChild(active_page)
+    body.appendChild(active_page.page)
 }

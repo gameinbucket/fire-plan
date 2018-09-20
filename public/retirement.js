@@ -1,6 +1,7 @@
 class Retirement {
     constructor() {
         let self = this
+        this.name = 'Retirement'
 
         let page = document.createElement('div')
         page.classList.add('content')
@@ -72,38 +73,13 @@ class Retirement {
         this.result = null
         this.page = page
 
-        let call = function(data) {
-            let store = Parse.Message(data)
-            if (store['error']) {
-                console.log(`error ${store['error']}`)
-                return
-            }
-            for (let key in self.form) {
-                if (store[key]) {
-                    self.form[key].input.value = store[key]
-                }
-            }
-        }
-        let data = `req:get-retire user:${user.name} ticket:${user.ticket} `
-        Network.Request(data, call)
+        this.request_data()
     }   
     net_worth(cash, stocks, bonds) {
         return cash + stocks + bonds
     }
     do_calculate() {
-        let call = function(data) {
-            let store = Parse.Message(data)
-            if (store['error']) {
-                console.log(`error ${store['error']}`)
-                return
-            }
-        }
-        let data = `req:save-retire user:${user.name} ticket:${user.ticket} `
-        for (let key in this.form) {
-            let field = this.form[key]
-            data += `${field.name}:${field.input.value} `
-        }
-        Network.Request(data, call)
+        this.save_data()
 
         let inflation_value = parseFloat(this.inflation.input.value) / 100.0
         let stock_return_value = parseFloat(this.stock_return.input.value) / 100.0
@@ -191,10 +167,36 @@ class Retirement {
         }
         image.src = canvas.toDataURL()
     }
-    save() {
-
+    save_data() {
+        let call = function(data) {
+            let store = Pack.Parse(data)
+            if (store['error']) {
+                console.log(`error ${store['error']}`)
+                return
+            }
+        }
+        let data = `req:save-retire|user:${user.name}|ticket:${user.ticket}|`
+        for (let key in this.form) {
+            let field = this.form[key]
+            data += `${field.name}:${field.input.value}|`
+        }
+        Network.Request(data, call)
     }
-    load() {
-        
+    request_data() {
+        let self = this
+        let call = function(data) {
+            let store = Pack.Parse(data)
+            if (store['error']) {
+                console.log(`error ${store['error']}`)
+                return
+            }
+            for (let key in self.form) {
+                if (store[key]) {
+                    self.form[key].input.value = store[key]
+                }
+            }
+        }
+        let data = `req:get-retire|user:${user.name}|ticket:${user.ticket}|`
+        Network.Request(data, call)
     }
 }

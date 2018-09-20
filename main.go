@@ -19,6 +19,7 @@ const textPlain = "text/plain"
 const dir = "./public"
 const home = dir + "/app.html"
 const api = "/api"
+const caching = false
 
 var extensions = map[string]string{
 	".html": "text/html",
@@ -37,25 +38,6 @@ var fileCache = map[string][]byte{}
 var tickets = map[string]string{}
 var server *http.Server
 var db *bolt.DB
-
-func parse(message []byte) map[string]string {
-	size := len(message)
-	store := make(map[string]string)
-	middle := 0
-	start := 0
-	for end := 0; end < size; end++ {
-		current := message[end]
-		if current == ':' {
-			middle = end
-		} else if current == ' ' {
-			key := string(message[start:middle])
-			value := string(message[middle+1 : end])
-			store[key] = value
-			start = end + 1
-		}
-	}
-	return store
-}
 
 func handleAPI(store map[string]string, w http.ResponseWriter) {
 	user, ok := store["user"]
@@ -77,10 +59,12 @@ func handleAPI(store map[string]string, w http.ResponseWriter) {
 	serverTicket, ok := tickets[user]
 	if !ok || userTicket != serverTicket {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("error:bad_ticket "))
+		w.Write([]byte("error:bad_ticket|"))
 		return
 	}
 	switch store["req"] {
+	case "sign-out":
+		signOut(store, w)
 	case "save-retire":
 		saveRetire(store, w)
 	case "get-retire":
@@ -109,7 +93,7 @@ func serve(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				panic(err)
 			}
-			store := parse(body)
+			store := parsePack([]rune(string(body)))
 			handleAPI(store, w)
 
 		} else {
@@ -131,8 +115,21 @@ func serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contents, ok := fileCache[path]
-	if !ok {
+	var contents []byte
+	if caching {
+		contents, ok := fileCache[path]
+		if !ok {
+			file, err := os.Open(path)
+			if err != nil {
+				return
+			}
+			contents, err = ioutil.ReadAll(file)
+			if err != nil {
+				panic(err)
+			}
+			fileCache[path] = contents
+		}
+	} else {
 		file, err := os.Open(path)
 		if err != nil {
 			return
@@ -141,7 +138,6 @@ func serve(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		fileCache[path] = contents
 	}
 
 	w.Header().Set(contentType, typ)

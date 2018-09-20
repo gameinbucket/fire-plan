@@ -41,12 +41,12 @@ func signUp(store map[string]string, w http.ResponseWriter) {
 		ticket := handleTicket(user)
 		w.Write([]byte("ticket:"))
 		w.Write([]byte(ticket))
-		w.Write([]byte(" "))
+		w.Write([]byte("|"))
 		return nil
 	})
 	if err != nil {
 		fmt.Println(err)
-		w.Write([]byte("error:something_went_wrong "))
+		w.Write([]byte("error:something_went_wrong|"))
 	}
 }
 
@@ -67,16 +67,16 @@ func signIn(store map[string]string, w http.ResponseWriter) {
 			ticket := handleTicket(user)
 			w.Write([]byte("ticket:"))
 			w.Write([]byte(ticket))
-			w.Write([]byte(" "))
+			w.Write([]byte("|"))
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("error:username_or_password_incorrect "))
+			w.Write([]byte("error:username_or_password_incorrect|"))
 		}
 		return
 	}
 	fmt.Println(err)
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("error:something_went_wrong "))
+	w.Write([]byte("error:something_went_wrong|"))
 }
 
 func handleTicket(user string) string {
@@ -89,4 +89,9 @@ func handleTicket(user string) string {
 	ticket := base64.URLEncoding.EncodeToString(bytes)
 	tickets[user] = ticket
 	return ticket
+}
+
+func signOut(store map[string]string, w http.ResponseWriter) {
+	delete(tickets, store["user"])
+	w.Write([]byte("message:success|"))
 }

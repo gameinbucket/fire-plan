@@ -68,7 +68,7 @@ func getRetire(store map[string]string, w http.ResponseWriter) {
 			message.Write(key)
 			message.WriteString(":")
 			message.Write(value)
-			message.WriteString(" ")
+			message.WriteString("|")
 		}
 		return nil
 	})
