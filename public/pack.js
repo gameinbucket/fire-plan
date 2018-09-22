@@ -1,6 +1,5 @@
 class Pack {
     static Parse(message) {
-        console.log(message)
         let size = message.length
         let store = []
         let middle = 0
@@ -23,7 +22,7 @@ class Pack {
         return store
     }
     static Print(store) {
-        Object.keys(store).forEach(function(key) {
+        Object.keys(store).forEach(function (key) {
             console.log(key + ":" + store[key]);
         });
     }

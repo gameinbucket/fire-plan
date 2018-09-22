@@ -2,6 +2,7 @@
     font-family: 'roboto';
     src: url(roboto.ttf);
 }
+
 :root {
     --content: 60rem;
     --space: 1rem;
@@ -16,38 +17,46 @@
     --font-color-3: #337ab7;
     --black-font: rgb(48, 48, 48);
 }
+
 html {
     font-family: 'roboto';
     margin: 0;
     padding: 0;
     height: 100%;
 }
+
 body {
     margin: 0;
     padding: 0;
     height: 100%;
 }
+
 .nav {
     display: flex;
     background-color: white;
     padding: 1rem;
 }
+
 .info {
     background-color: var(--main-color);
     padding: 1rem;
     margin-bottom: 0.5rem;
 }
+
 .title {
     display: block;
     margin-right: var(--space);
     color: var(---black-font);
 }
+
 .title:hover {
     cursor: pointer;
 }
+
 .infotitle {
     color: var(--font-color);
 }
+
 .search {
     flex: 1;
     padding: 0.2rem 0.4rem;
@@ -56,26 +65,32 @@ body {
     font-family: 'roboto';
     font-weight: bold;
     color: var(--black-font);
-    border: 1px solid rgb(237, 239, 241);
+    border: none;
     border-radius: 0.2rem;
     margin-right: var(--space);
 }
-.search:hover, .search:focus {
+
+.search:hover,
+.search:focus {
     border-color: black;
     background-color: white;
 }
+
 .content {
     width: var(--content);
     margin-left: auto;
     margin-right: auto;
 }
+
 .sign {
     color: black;
 }
+
 .sign:hover {
     cursor: pointer;
     color: darkgray;
 }
+
 .in {
     background-color: white;
     border: none;
@@ -86,16 +101,20 @@ body {
     color: var(--black-font);
     font-family: 'roboto';
 }
+
 .input-group {
-    background-color: rgb(212,236,250);
+    background-color: rgb(212, 236, 250);
 }
+
 .in-div {
     padding: 0.5rem;
     display: inline-block;
 }
+
 .in-label {
     color: var(--font-color-3);
 }
+
 .goto {
     display: inline-block;
     margin: 0.5rem;
@@ -105,10 +124,12 @@ body {
     background-color: var(--button-color);
     text-align: center;
 }
+
 .goto:hover {
     cursor: pointer;
     color: var(--font-color);
 }
+
 .do {
     margin-top: var(--space);
     min-width: 10rem;
@@ -121,6 +142,7 @@ body {
     color: white;
     font-family: 'roboto';
 }
+
 .do:hover {
     cursor: pointer;
     background-color: var(--button-color-3);

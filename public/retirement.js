@@ -1,5 +1,5 @@
 class Retirement {
-    constructor() {
+    constructor(app) {
         let self = this
         this.name = 'Retirement'
 
@@ -34,7 +34,7 @@ class Retirement {
         this.specify_death.setAttribute('type', 'radio')
         this.specify_death.setAttribute('name', 'end-age')
         this.specify_death.setAttribute('value', 'specify-age')
-        this.specify_death.innerHTML = 'specify age'
+        this.specify_death.textContent = 'specify age'
         this.specify_death.onclick = function() {
             self.death.div.style.display = 'inline-block'
         }
@@ -46,16 +46,16 @@ class Retirement {
         this.never_deplete.setAttribute('name', 'end-age')
         this.never_deplete.setAttribute('value', 'never-deplete')
         this.never_deplete.setAttribute('checked', '')
-        this.never_deplete.innerHTML = 'never deplete'
+        this.never_deplete.textContent = 'never deplete'
         this.never_deplete.onclick = function() {
             self.death.div.style.display = 'none'
         }
         group.appendChild(this.never_deplete) */
 
         this.calculate = document.createElement('button')
-        this.calculate.innerHTML = 'Calculate'
+        this.calculate.textContent = 'Calculate'
         this.calculate.classList.add('do')
-        this.calculate.onclick = function() {
+        this.calculate.onclick = function () {
             let valid = true
             for (let key in self.form) {
                 if (self.form[key].invalid()) {
@@ -63,7 +63,7 @@ class Retirement {
                 }
             }
             if (valid) {
-                self.do_calculate()
+                self.do_calculate(app)
             }
         }
 
@@ -73,13 +73,13 @@ class Retirement {
         this.result = null
         this.page = page
 
-        this.request_data()
-    }   
+        this.request_data(app)
+    }
     net_worth(cash, stocks, bonds) {
         return cash + stocks + bonds
     }
-    do_calculate() {
-        this.save_data()
+    do_calculate(app) {
+        this.save_data(app)
 
         let inflation_value = parseFloat(this.inflation.input.value) / 100.0
         let stock_return_value = parseFloat(this.stock_return.input.value) / 100.0
@@ -123,7 +123,7 @@ class Retirement {
             retirement_age = 'Not able to retire.'
         }
 
-        this.result.innerHTML = `Assets required: $ ${assets_required.toLocaleString()} Retirement Age: ${retirement_age}`
+        this.result.textContent = `Assets required: $ ${assets_required.toLocaleString()} Retirement Age: ${retirement_age}`
     }
     plot() {
         let expense_list = [expense_value]
@@ -167,24 +167,24 @@ class Retirement {
         }
         image.src = canvas.toDataURL()
     }
-    save_data() {
-        let call = function(data) {
+    save_data(app) {
+        let call = function (data) {
             let store = Pack.Parse(data)
             if (store['error']) {
                 console.log(`error ${store['error']}`)
                 return
             }
         }
-        let data = `req:save-retire|user:${user.name}|ticket:${user.ticket}|`
+        let data = `req:save-retire|user:${app.user.name}|ticket:${app.user.ticket}|`
         for (let key in this.form) {
             let field = this.form[key]
             data += `${field.name}:${field.input.value}|`
         }
         Network.Request(data, call)
     }
-    request_data() {
+    request_data(app) {
         let self = this
-        let call = function(data) {
+        let call = function (data) {
             let store = Pack.Parse(data)
             if (store['error']) {
                 console.log(`error ${store['error']}`)
@@ -196,7 +196,7 @@ class Retirement {
                 }
             }
         }
-        let data = `req:get-retire|user:${user.name}|ticket:${user.ticket}|`
+        let data = `req:get-retire|user:${app.user.name}|ticket:${app.user.ticket}|`
         Network.Request(data, call)
     }
 }

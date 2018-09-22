@@ -1,24 +1,24 @@
 class Dashboard {
-    constructor() {
+    constructor(app) {
         let self = this
         this.name = 'Dashboard'
 
         let page = document.createElement('div')
         this.page = page
         page.classList.add('content')
-        
+
         let retirement = document.createElement('div')
-        retirement.innerHTML = 'Retirement'
+        retirement.textContent = 'Retirement'
         retirement.classList.add('goto')
-        retirement.onclick = function() {
-            switch_retire_page()
+        retirement.onclick = function () {
+            app.switch_retire_page()
         }
-        
+
         let budget = document.createElement('div')
-        budget.innerHTML = 'Budget'
+        budget.textContent = 'Budget'
         budget.classList.add('goto')
-        budget.onclick = function() {
-            switch_budget_page()
+        budget.onclick = function () {
+            app.switch_budget_page()
         }
 
         page.appendChild(retirement)

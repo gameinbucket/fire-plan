@@ -29,7 +29,7 @@ func signUp(store map[string]string, w http.ResponseWriter) {
 		userBucket := t.Bucket([]byte(user))
 		if userBucket != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("error:user_already_exists "))
+			w.Write([]byte("error:user already exists|"))
 			return nil
 		}
 		userBucket, err = t.CreateBucket([]byte(user))
@@ -46,7 +46,7 @@ func signUp(store map[string]string, w http.ResponseWriter) {
 	})
 	if err != nil {
 		fmt.Println(err)
-		w.Write([]byte("error:something_went_wrong|"))
+		w.Write([]byte("error:something went wrong|"))
 	}
 }
 
@@ -70,13 +70,13 @@ func signIn(store map[string]string, w http.ResponseWriter) {
 			w.Write([]byte("|"))
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("error:username_or_password_incorrect|"))
+			w.Write([]byte("error:username or password incorrect|"))
 		}
 		return
 	}
 	fmt.Println(err)
 	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte("error:something_went_wrong|"))
+	w.Write([]byte("error:something went wrong|"))
 }
 
 func handleTicket(user string) string {

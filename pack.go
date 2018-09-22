@@ -33,6 +33,7 @@ var special = map[rune]bool{
 	']': true,
 	'}': true,
 	'|': true,
+	' ': true,
 }
 
 func parsePack(message []rune) map[string]string {
@@ -49,8 +50,12 @@ func parsePack(message []rune) map[string]string {
 				if start < middle && middle < end && end <= size {
 					key := string(message[start:middle])
 					value := string(message[middle+1 : end])
-					store[key] = value
-					start = end + 1
+					if clean(key) && clean(value) {
+						store[key] = value
+						start = end + 1
+					} else {
+						return nil
+					}
 				} else {
 					return nil
 				}
@@ -65,4 +70,11 @@ func parsePack(message []rune) map[string]string {
 func isSpecial(c rune) bool {
 	_, exist := special[c]
 	return exist
+}
+
+func clean(word string) bool {
+	if word == "" {
+		return false
+	}
+	return true
 }

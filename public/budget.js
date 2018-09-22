@@ -1,5 +1,5 @@
 class Budget {
-    constructor() {
+    constructor(app) {
         let self = this
         this.name = 'Budget'
 
@@ -18,8 +18,8 @@ class Budget {
         }
 
         page.appendChild(group)
-        
-        let call = function(data) {
+
+        let call = function (data) {
             let store = Pack.Parse(data)
             if (store['error']) {
                 console.log(`error ${store['error']}`)
@@ -31,7 +31,7 @@ class Budget {
                 }
             }
         }
-        let data = `req:get-budget|user:${user.name}|ticket:${user.ticket}|`
+        let data = `req:get-budget|user:${app.user.name}|ticket:${app.user.ticket}|`
         Network.Request(data, call)
     }
 }

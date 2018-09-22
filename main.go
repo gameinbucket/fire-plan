@@ -36,12 +36,17 @@ var extensions = map[string]string{
 
 var fileCache = map[string][]byte{}
 var tickets = map[string]string{}
+var rate = map[string]int{}
 var server *http.Server
 var db *bolt.DB
 
 func handleAPI(store map[string]string, w http.ResponseWriter) {
+	if store == nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	user, ok := store["user"]
-	if !ok {
+	if !ok || len(user) < 3 {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -59,7 +64,7 @@ func handleAPI(store map[string]string, w http.ResponseWriter) {
 	serverTicket, ok := tickets[user]
 	if !ok || userTicket != serverTicket {
 		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("error:bad_ticket|"))
+		w.Write([]byte("error:bad ticket|"))
 		return
 	}
 	switch store["req"] {

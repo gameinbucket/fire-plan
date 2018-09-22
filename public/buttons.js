@@ -1,23 +1,23 @@
 class Field {
     constructor(root, form, name, label_name, value) {
-        
+
         form[name] = this
         this.name = name
 
         this.div = document.createElement('div')
         this.div.classList.add('in-div')
         root.appendChild(this.div)
-    
+
         this.label = document.createElement('div')
-        this.label.innerHTML = label_name
+        this.label.textContent = label_name
         this.label.classList.add('in-label')
         this.div.appendChild(this.label)
-    
+
         this.input = document.createElement('input')
         this.input.setAttribute('type', 'text')
         this.input.classList.add('in')
         this.div.appendChild(this.input)
-    
+
         this.input.value = value
 
         this.color = 'black'
@@ -36,6 +36,6 @@ class Field {
 
 class OptionalField extends Field {
     invalid() {
-    
+
     }
 }

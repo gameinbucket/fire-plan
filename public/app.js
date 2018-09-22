@@ -1,75 +1,65 @@
-function import_script(src, call) {
-    let script = document.createElement('script')
-    script.src = src
-    script.async = false
-    script.onreadystatechange = call
-    script.onload = call
-    document.head.appendChild(script)
-}
+class Application {
+    constructor() {
+        this.user = new User('user', 'ticket')
+        this.budget_page = null
+        this.retire_page = null
+        this.dashboard_page = new Dashboard(this)
+        this.active_page = this.dashboard_page
+        this.navigation = new Navigation(this)
+        this.information = new Information(this)
 
-const backspaceKey = 8
-const deleteKey = 46
-const body = document.body
-
-function integer_filter(event) {
-    let key = event.keyCode
-    if (key === backspaceKey || key === deleteKey) {
-        return
-    } else if (key >= 47 && key <= 58) {
-        return
+        document.body.appendChild(this.navigation.element)
+        document.body.appendChild(this.information.element)
+        document.body.appendChild(this.active_page.page)
     }
-    event.preventDefault()
-}
-
-function get_dashboard() {
-    dashboard_page = new Dashboard()
-    return dashboard_page
-}
-
-function switch_dashboard() {
-    page_switch(dashboard_page)
-}
-
-function switch_retire_page() {
-    if (retire_page) {
-        page_switch(retire_page)
-    } else {
-        import_script('retirement.js', function() {
-            retire_page = new Retirement()
-            page_switch(retire_page)
-        })
+    import_script(src, call) {
+        let script = document.createElement('script')
+        script.src = src
+        script.async = false
+        script.onreadystatechange = call
+        script.onload = call
+        document.head.appendChild(script)
+    }
+    switch_dashboard() {
+        this.page_switch(this.dashboard_page)
+    }
+    switch_retire_page() {
+        if (this.retire_page) {
+            this.page_switch(this.retire_page)
+        } else {
+            let self = this
+            this.import_script('retirement.js', function () {
+                self.retire_page = new Retirement(self)
+                self.page_switch(self.retire_page)
+            })
+        }
+    }
+    switch_budget_page() {
+        if (this.budget_page) {
+            this.page_switch(this.budget_page)
+        } else {
+            let self = this
+            this.import_script('budget.js', function () {
+                self.budget_page = new Budget(self)
+                self.page_switch(self.budget_page)
+            })
+        }
+    }
+    page_switch(to) {
+        document.body.removeChild(this.active_page.page)
+        document.body.appendChild(to.page)
+        this.active_page = to
+        this.information.label.textContent = this.active_page.name
     }
 }
 
-function switch_budget_page() {
-    if (budget_page) {
-        page_switch(budget_page)
-    } else {
-        import_script('budget.js', function() {
-            budget_page = new Budget()
-            page_switch(budget_page)
-        })
-    }
-}
-
-function page_switch(to) {
-    body.removeChild(active_page.page)
-    body.appendChild(to.page)
-    active_page = to
-    title_label.innerHTML = active_page.name
-}
-
-let user = new User()
-user.name = 'godzilla'
-user.ticket = localStorage.getItem('ticket')
-let budget_page = null
-let retire_page = null
-let dashboard_page = null
-let title_label = null
-let active_page = get_dashboard()
-
-window.onload = function() {
-    body.appendChild(get_nav())
-    body.appendChild(get_info())
-    body.appendChild(active_page.page)
+window.onload = function () {
+    new Application()
+    /* if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service.js').then((registration) => {
+            console.log('service worker registered ', registration);
+        }).catch((error) => {
+            console.log('failed service worker registration', error);
+        });
+    } */
 }
