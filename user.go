@@ -5,10 +5,18 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"golang.org/x/crypto/bcrypt"
 )
+
+// User Session information
+type User struct {
+	Name      string
+	Ticket    string
+	TicketEnd int64
+}
 
 var passwordKey = []byte("password")
 
@@ -28,7 +36,6 @@ func signUp(store map[string]string, w http.ResponseWriter) {
 		var err error
 		userBucket := t.Bucket([]byte(user))
 		if userBucket != nil {
-			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("error:user already exists|"))
 			return nil
 		}
@@ -38,7 +45,7 @@ func signUp(store map[string]string, w http.ResponseWriter) {
 		}
 		passwordHash, _ := hashPassword(password)
 		userBucket.Put(passwordKey, passwordHash)
-		ticket := handleTicket(user)
+		ticket := newUserAndTicket(user)
 		w.Write([]byte("ticket:"))
 		w.Write([]byte(ticket))
 		w.Write([]byte("|"))
@@ -64,34 +71,42 @@ func signIn(store map[string]string, w http.ResponseWriter) {
 	})
 	if err == nil {
 		if checkPassword(password, passwordHash) {
-			ticket := handleTicket(user)
+			ticket := newUserAndTicket(user)
 			w.Write([]byte("ticket:"))
 			w.Write([]byte(ticket))
 			w.Write([]byte("|"))
 		} else {
-			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("error:username or password incorrect|"))
 		}
 		return
 	}
 	fmt.Println(err)
-	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte("error:something went wrong|"))
 }
 
-func handleTicket(user string) string {
+func makeTicket() string {
 	const len = 32
 	bytes := make([]byte, len)
 	_, err := rand.Read(bytes)
 	if err != nil {
 		panic(err)
 	}
-	ticket := base64.URLEncoding.EncodeToString(bytes)
-	tickets[user] = ticket
+	return base64.URLEncoding.EncodeToString(bytes)
+}
+
+func newUserAndTicket(user string) string {
+	ticket := makeTicket()
+	users[user] = &User{Name: user, Ticket: ticket, TicketEnd: time.Now().Unix() + sessionTime}
 	return ticket
 }
 
+func refreshTicket(user string) {
+	thisUser := users[user]
+	thisUser.Ticket = makeTicket()
+	thisUser.TicketEnd = time.Now().Unix()
+}
+
 func signOut(store map[string]string, w http.ResponseWriter) {
-	delete(tickets, store["user"])
+	users[store["user"]].Ticket = ""
 	w.Write([]byte("message:success|"))
 }

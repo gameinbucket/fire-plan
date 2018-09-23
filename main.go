@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/boltdb/bolt"
 )
@@ -20,6 +21,7 @@ const dir = "./public"
 const home = dir + "/app.html"
 const api = "/api"
 const caching = false
+const sessionTime = 60 * 30
 
 var extensions = map[string]string{
 	".html": "text/html",
@@ -34,20 +36,21 @@ var extensions = map[string]string{
 	".ttf":  "application/font-ttf",
 }
 
-var fileCache = map[string][]byte{}
-var tickets = map[string]string{}
-var rate = map[string]int{}
 var server *http.Server
 var db *bolt.DB
+var files = map[string][]byte{}
+
+var users = map[string]*User{}
+var rate = map[string]int{}
 
 func handleAPI(store map[string]string, w http.ResponseWriter) {
 	if store == nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("error:bad request|"))
 		return
 	}
-	user, ok := store["user"]
-	if !ok || len(user) < 3 {
-		w.WriteHeader(http.StatusBadRequest)
+	userName, ok := store["user"]
+	if !ok || len(userName) < 3 {
+		w.Write([]byte("error:bad request|"))
 		return
 	}
 	userTicket, ok := store["ticket"]
@@ -57,16 +60,23 @@ func handleAPI(store map[string]string, w http.ResponseWriter) {
 		} else if store["req"] == "sign-up" {
 			signUp(store, w)
 		} else {
-			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("error:bad request|"))
 		}
 		return
 	}
-	serverTicket, ok := tickets[user]
-	if !ok || userTicket != serverTicket {
-		w.WriteHeader(http.StatusUnauthorized)
+	user, ok := users[userName]
+	if !ok || userTicket != user.Ticket {
 		w.Write([]byte("error:bad ticket|"))
 		return
 	}
+	currentTime := time.Now().Unix()
+	if currentTime > user.TicketEnd {
+		w.Write([]byte("error:session expired|"))
+		return
+	}
+	user.TicketEnd = currentTime
+	// todo: give new token to user and server
+
 	switch store["req"] {
 	case "sign-out":
 		signOut(store, w)
@@ -89,7 +99,7 @@ func putBucket(b *bolt.Bucket, k, v string) {
 }
 
 func serve(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Method, r.URL.Path)
+	fmt.Println(r.RemoteAddr, r.Method, r.URL.Path)
 
 	if strings.HasPrefix(r.URL.Path, api) {
 		if r.Method == "POST" {
@@ -115,34 +125,42 @@ func serve(w http.ResponseWriter, r *http.Request) {
 		path = dir + r.URL.Path
 	}
 
-	typ, ok := extensions[filepath.Ext(path)]
-	if !ok {
-		return
-	}
-
 	var contents []byte
 	if caching {
-		contents, ok := fileCache[path]
+		contents, ok := files[path]
 		if !ok {
 			file, err := os.Open(path)
 			if err != nil {
-				return
+				path = home
+				file, err = os.Open(path)
+				if err != nil {
+					return
+				}
 			}
 			contents, err = ioutil.ReadAll(file)
 			if err != nil {
 				panic(err)
 			}
-			fileCache[path] = contents
+			files[path] = contents
 		}
 	} else {
 		file, err := os.Open(path)
 		if err != nil {
-			return
+			path = home
+			file, err = os.Open(path)
+			if err != nil {
+				return
+			}
 		}
 		contents, err = ioutil.ReadAll(file)
 		if err != nil {
 			panic(err)
 		}
+	}
+
+	typ, ok := extensions[filepath.Ext(path)]
+	if !ok {
+		return
 	}
 
 	w.Header().Set(contentType, typ)

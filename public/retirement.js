@@ -2,6 +2,7 @@ class Retirement {
     constructor(app) {
         let self = this
         this.name = 'Retirement'
+        this.link = 'retirement'
 
         let page = document.createElement('div')
         page.classList.add('content')

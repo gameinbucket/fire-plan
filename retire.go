@@ -46,7 +46,6 @@ func saveRetire(store map[string]string, w http.ResponseWriter) {
 		return nil
 	})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err)
 	}
 }
@@ -73,7 +72,6 @@ func getRetire(store map[string]string, w http.ResponseWriter) {
 		return nil
 	})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err)
 	} else {
 		w.Write([]byte(message.String()))

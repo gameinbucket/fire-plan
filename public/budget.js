@@ -2,6 +2,7 @@ class Budget {
     constructor(app) {
         let self = this
         this.name = 'Budget'
+        this.link = 'budget'
 
         let page = document.createElement('div')
         this.page = page

@@ -7,7 +7,7 @@ class Navigation {
         title.classList.add('title')
         title.textContent = 'Fire Plan'
         title.onclick = function () {
-            app.switch_dashboard()
+            app.switch_dashboard(false)
         }
 
         let search = document.createElement('input')
@@ -30,26 +30,28 @@ class Navigation {
     }
     update_sign_in_out(user) {
         if (user.ticket === null) {
-            this.not_signed_in(user)
+            this.display_sign_in(user)
         } else {
-            this.is_signed_in(user)
+            this.display_sign_out(user)
         }
     }
-    not_signed_in(user) {
+    display_sign_in(user) {
         let self = this
         let sign_in = document.createElement('a')
         sign_in.classList.add('sign')
         sign_in.textContent = 'Sign in'
         sign_in.onclick = function () {
-            user.request_sign_in()
-            self.update_sign_in_out(user)
+            user.request_sign_in(() => {
+                self.update_sign_in_out(user)
+            })
         }
         let sign_up = document.createElement('a')
         sign_up.classList.add('sign')
         sign_up.textContent = 'Sign up'
         sign_up.onclick = function () {
-            user.request_sign_up()
-            self.update_sign_in_out(user)
+            user.request_sign_up(() => {
+                self.update_sign_in_out(user)
+            })
         }
         let or = document.createElement('span')
         or.textContent = ' or '
@@ -60,7 +62,7 @@ class Navigation {
         this.sign.appendChild(or)
         this.sign.appendChild(sign_up)
     }
-    is_signed_in(user) {
+    display_sign_out(user) {
         let self = this
         let sign_out = document.createElement('a')
         sign_out.classList.add('sign')
@@ -87,7 +89,6 @@ class Information {
         let label = document.createElement('a')
         this.label = label
         label.classList.add('infotitle')
-        label.textContent = app.active_page.name
 
         content.appendChild(label)
         bar.appendChild(content)

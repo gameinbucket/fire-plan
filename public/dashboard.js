@@ -2,6 +2,7 @@ class Dashboard {
     constructor(app) {
         let self = this
         this.name = 'Dashboard'
+        this.link = '/'
 
         let page = document.createElement('div')
         this.page = page

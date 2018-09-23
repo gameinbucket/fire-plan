@@ -19,9 +19,14 @@ class User {
         let data = `user:${this.name}|ticket:${this.ticket}|`
         Network.Request(data, call)
     }
-    request_sign_in() {
+    request_sign_in(call) {
+        if (this.name === null || this.ticket === null) {
+            console.log('username and password required')
+            return
+        }
         let self = this
-        let call = function (data) {
+        let data = `req:sign-in|user:${this.name}|password:${this.password}|`
+        Network.Request(data, (data) => {
             let store = Pack.Parse(data)
             if (store['error']) {
                 console.log('error ' + store['error'])
@@ -31,22 +36,22 @@ class User {
                 self.ticket = store['ticket']
                 localStorage.setItem('user', self.name)
                 localStorage.setItem('ticket', self.ticket)
+                call()
             }
-        }
-        let data = `req:sign-in|user:${this.name}|password:${this.password}|`
-        Network.Request(data, call)
+        })
         this.password = null
     }
-    request_sign_up() {
+    request_sign_up(call) {
         if (this.name === null || this.name === '') {
-            this.name = 'hello'
+            this.name = Math.floor((1 + Math.random()) * 0x10000).toString(16)
         }
         if (this.password === null || this.password === '') {
             this.password = 'password'
         }
 
         let self = this
-        let call = function (data) {
+        let data = `req:sign-up|user:${this.name}|password:${this.password}|`
+        Network.Request(data, (data) => {
             let store = Pack.Parse(data)
             if (store['error']) {
                 console.log('error ' + store['error'])
@@ -56,17 +61,16 @@ class User {
                 self.ticket = store['ticket']
                 localStorage.setItem('user', self.name)
                 localStorage.setItem('ticket', self.ticket)
+                call()
             }
-        }
-        let data = `req:sign-up|user:${this.name}|password:${this.password}|`
-        Network.Request(data, call)
+        })
         this.password = null
     }
     request_sign_out() {
         let data = `req:sign-out|user:${this.name}|ticket:${this.ticket}|`
         Network.Request(data, () => {})
-        self.name = null
-        self.ticket = null
+        this.name = null
+        this.ticket = null
         localStorage.removeItem('user')
         localStorage.removeItem('ticket')
     }
