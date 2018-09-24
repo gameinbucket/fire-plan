@@ -4,9 +4,9 @@ class Budget {
         this.name = 'Budget'
         this.link = 'budget'
 
-        let page = document.createElement('div')
-        this.page = page
-        page.classList.add('content')
+        let element = document.createElement('div')
+        this.element = element
+        element.classList.add('content')
 
         let group = document.createElement('div')
         group.classList.add('input-group')
@@ -18,7 +18,7 @@ class Budget {
             new BudgetItem(group, form, '#' + i, '#' + 1, '')
         }
 
-        page.appendChild(group)
+        element.appendChild(group)
 
         let call = function (data) {
             let store = Pack.Parse(data)

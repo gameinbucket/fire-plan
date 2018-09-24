@@ -42,13 +42,6 @@ class User {
         this.password = null
     }
     request_sign_up(call) {
-        if (this.name === null || this.name === '') {
-            this.name = Math.floor((1 + Math.random()) * 0x10000).toString(16)
-        }
-        if (this.password === null || this.password === '') {
-            this.password = 'password'
-        }
-
         let self = this
         let data = `req:sign-up|user:${this.name}|password:${this.password}|`
         Network.Request(data, (data) => {

@@ -100,10 +100,9 @@ func newUserAndTicket(user string) string {
 	return ticket
 }
 
-func refreshTicket(user string) {
-	thisUser := users[user]
-	thisUser.Ticket = makeTicket()
-	thisUser.TicketEnd = time.Now().Unix()
+func refreshTicket(user *User) string {
+	user.Ticket = makeTicket()
+	return user.Ticket
 }
 
 func signOut(store map[string]string, w http.ResponseWriter) {

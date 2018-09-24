@@ -4,25 +4,25 @@ class Dashboard {
         this.name = 'Dashboard'
         this.link = '/'
 
-        let page = document.createElement('div')
-        this.page = page
-        page.classList.add('content')
+        let element = document.createElement('div')
+        this.element = element
+        element.classList.add('content')
 
         let retirement = document.createElement('div')
         retirement.textContent = 'Retirement'
         retirement.classList.add('goto')
         retirement.onclick = function () {
-            app.switch_retire_page()
+            app.switch_retire(false)
         }
 
         let budget = document.createElement('div')
         budget.textContent = 'Budget'
         budget.classList.add('goto')
         budget.onclick = function () {
-            app.switch_budget_page()
+            app.switch_budget(false)
         }
 
-        page.appendChild(retirement)
-        page.appendChild(budget)
+        element.appendChild(retirement)
+        element.appendChild(budget)
     }
 }

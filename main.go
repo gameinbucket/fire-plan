@@ -26,13 +26,14 @@ const sessionTime = 60 * 30
 var extensions = map[string]string{
 	".html": "text/html",
 	".js":   "text/javascript",
-	".json": "application/json",
 	".css":  "text/css",
 	".png":  "image/png",
 	".jpg":  "image/jpeg",
+	".svg":  "image/svg+xml",
+	".ico":  "image/x-icon",
 	".wav":  "audio/wav",
 	".mp3":  "audio/mpeg",
-	".ico":  "image/x-icon",
+	".json": "application/json",
 	".ttf":  "application/font-ttf",
 }
 
@@ -74,8 +75,11 @@ func handleAPI(store map[string]string, w http.ResponseWriter) {
 		w.Write([]byte("error:session expired|"))
 		return
 	}
-	user.TicketEnd = currentTime
-	// todo: give new token to user and server
+	user.TicketEnd = currentTime + sessionTime
+	ticket := refreshTicket(user)
+	w.Write([]byte("ticket:"))
+	w.Write([]byte(ticket))
+	w.Write([]byte("|"))
 
 	switch store["req"] {
 	case "sign-out":

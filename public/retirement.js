@@ -4,8 +4,8 @@ class Retirement {
         this.name = 'Retirement'
         this.link = 'retirement'
 
-        let page = document.createElement('div')
-        page.classList.add('content')
+        let element = document.createElement('div')
+        element.classList.add('content')
 
         let group = document.createElement('div')
         group.classList.add('input-group')
@@ -27,36 +27,7 @@ class Retirement {
         this.age = new Field(group, form, 'age', 'Current Age', '')
         this.withdraw_rate = new Field(group, form, 'withdraw', 'Withdraw Rate %', '4.0')
 
-        /* this.death = new Field(group, 'Expected Age to Live', '120')
-        this.death.div.style.display = 'none'
-
-        this.specify_death = document.createElement('input')
-        this.specify_death.classList.add('in')
-        this.specify_death.setAttribute('type', 'radio')
-        this.specify_death.setAttribute('name', 'end-age')
-        this.specify_death.setAttribute('value', 'specify-age')
-        this.specify_death.textContent = 'specify age'
-        this.specify_death.onclick = function() {
-            self.death.div.style.display = 'inline-block'
-        }
-        group.appendChild(this.specify_death)
-
-        this.never_deplete = document.createElement('input')
-        this.never_deplete.classList.add('in')
-        this.never_deplete.setAttribute('type', 'radio')
-        this.never_deplete.setAttribute('name', 'end-age')
-        this.never_deplete.setAttribute('value', 'never-deplete')
-        this.never_deplete.setAttribute('checked', '')
-        this.never_deplete.textContent = 'never deplete'
-        this.never_deplete.onclick = function() {
-            self.death.div.style.display = 'none'
-        }
-        group.appendChild(this.never_deplete) */
-
-        this.calculate = document.createElement('button')
-        this.calculate.textContent = 'Calculate'
-        this.calculate.classList.add('do')
-        this.calculate.onclick = function () {
+        this.calculate = new Button('Calculate', function () {
             let valid = true
             for (let key in self.form) {
                 if (self.form[key].invalid()) {
@@ -66,13 +37,13 @@ class Retirement {
             if (valid) {
                 self.do_calculate(app)
             }
-        }
+        })
 
-        page.appendChild(group)
-        page.appendChild(this.calculate)
+        element.appendChild(group)
+        element.appendChild(this.calculate.element)
 
         this.result = null
-        this.page = page
+        this.element = element
 
         this.request_data(app)
     }
