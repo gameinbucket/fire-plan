@@ -3,6 +3,8 @@ class Application {
         this.user = new User('user', 'ticket')
         this.budget_page = null
         this.retire_page = null
+        this.register_page = null
+        this.login_page = null
         this.active_page = null
         this.dashboard_page = new Dashboard(this)
         this.navigation = new Navigation(this)
@@ -55,6 +57,17 @@ class Application {
             })
         }
     }
+    switch_login(pop) {
+        if (this.login_page) {
+            this.page_switch(this.login_page, pop)
+        } else {
+            let self = this
+            this.import_script('login.js', function () {
+                self.login_page = new Login(self)
+                self.page_switch(self.login_page, pop)
+            })
+        }
+    }
     page_switch(to, pop) {
         if (this.active_page === to) {
             return
@@ -78,6 +91,8 @@ class Application {
             this.switch_budget(pop)
         } else if (document.location.pathname === '/register') {
             this.switch_register(pop)
+        } else if (document.location.pathname === '/login') {
+            this.switch_login(pop)
         }
     }
     search(text) {
@@ -115,6 +130,15 @@ window.onload = function () {
 
             let to = app.register_page
             app.active_page = to
+            document.body.appendChild(to.element)
+            app.information.label.textContent = to.name
+        })
+    } else if (document.location.pathname === '/login') {
+        app.import_script('login.js', function () {
+            app.login_page = new Login(app)
+
+            let to = app.login_page
+            app.login_page = to
             document.body.appendChild(to.element)
             app.information.label.textContent = to.name
         })

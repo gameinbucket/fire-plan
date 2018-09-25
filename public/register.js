@@ -31,7 +31,7 @@ class Register {
                 app.user.name = self.email.input.value
                 app.user.password = self.password.input.value
                 app.user.request_sign_up(function () {
-                    app.navigation.login.update_display(app)
+                    app.navigation.profile_bar.update_display(app)
                     app.switch_dashboard(false)
                 })
             }

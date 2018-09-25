@@ -20,7 +20,7 @@ class User {
         Network.Request(data, call)
     }
     request_sign_in(call) {
-        if (this.name === null || this.ticket === null) {
+        if (this.name === null || this.password === null) {
             console.log('username and password required')
             return
         }
