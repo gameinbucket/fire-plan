@@ -6,7 +6,7 @@ class Navigation {
         let title = document.createElement('div')
         title.classList.add('title')
         title.onclick = function () {
-            app.switch_dashboard(false)
+            app.switch_page('dashboard', false)
         }
         title.onmouseover = function () {
             title.style.color = 'darkgray'
@@ -134,7 +134,7 @@ class ProfileBar {
         let login = document.createElement('button')
         login.textContent = 'Log In'
         login.onclick = function () {
-            app.switch_login(false)
+            app.switch_page('login', false)
         }
         login.style.marginRight = 'var(--space)'
         login.style.minWidth = '6rem'
@@ -160,7 +160,7 @@ class ProfileBar {
         let register = document.createElement('button')
         register.textContent = 'Register'
         register.onclick = function () {
-            app.switch_register(false)
+            app.switch_page('register', false)
         }
         register.style.minWidth = '6rem'
         register.style.border = '1px solid var(--button-color-2)'
@@ -201,18 +201,16 @@ class ProfileBar {
         group.style.padding = '0.3rem 0.3rem'
         group.style.fontWeight = 'bold'
         group.style.fontSize = '0.75rem'
-        group.style.color = 'darkgray'
+        group.style.color = 'black'
         group.style.textAlign = 'left'
         group.style.fontFamily = 'roboto'
         group.addEventListener('mouseover', function () {
             group.style.cursor = 'pointer'
             group.style.borderColor = 'gray'
-            group.style.color = 'gray'
         })
         group.addEventListener('mouseout', function () {
             group.style.cursor = 'default'
             group.style.borderColor = 'darkgray'
-            group.style.color = 'darkgray'
         })
         group.onclick = function () {
             self.display_options(app)
