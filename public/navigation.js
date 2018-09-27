@@ -6,7 +6,7 @@ class Navigation {
         let title = document.createElement('div')
         title.classList.add('title')
         title.onclick = function () {
-            app.switch_page('dashboard', false)
+            app.switch_page('dashboard', true)
         }
         title.onmouseover = function () {
             title.style.color = 'darkgray'
@@ -134,7 +134,7 @@ class ProfileBar {
         let login = document.createElement('button')
         login.textContent = 'Log In'
         login.onclick = function () {
-            app.switch_page('login', false)
+            app.switch_page('login', true)
         }
         login.style.marginRight = 'var(--space)'
         login.style.minWidth = '6rem'
@@ -160,7 +160,7 @@ class ProfileBar {
         let register = document.createElement('button')
         register.textContent = 'Register'
         register.onclick = function () {
-            app.switch_page('register', false)
+            app.switch_page('register', true)
         }
         register.style.minWidth = '6rem'
         register.style.border = '1px solid var(--button-color-2)'

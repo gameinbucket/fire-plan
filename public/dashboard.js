@@ -12,14 +12,14 @@ class Dashboard {
         retirement.textContent = 'Retirement'
         retirement.classList.add('goto')
         retirement.onclick = function () {
-            app.switch_page('retirement', false)
+            app.switch_page('retirement', true)
         }
 
         let budget = document.createElement('div')
         budget.textContent = 'Budget'
         budget.classList.add('goto')
         budget.onclick = function () {
-            app.switch_page('budget', false)
+            app.switch_page('budget', true)
         }
 
         element.appendChild(retirement)

@@ -36,18 +36,18 @@ class Application {
                 return new Budget(app)
         }
     }
-    switch_page(id, pop) {
+    switch_page(id, push) {
         if (this.pages[id]) {
-            this.swap_page_elements(this.pages[id], pop)
+            this.swap_page_elements(this.pages[id], push)
         } else {
             let self = this
             Application.ImportScript(id + '.js', function () {
                 self.pages[id] = Application.NewPage(self, id)
-                self.swap_page_elements(self.pages[id], pop)
+                self.swap_page_elements(self.pages[id], push)
             })
         }
     }
-    swap_page_elements(to, pop) {
+    swap_page_elements(to, push) {
         if (this.active_page === to) {
             return
         }
@@ -57,26 +57,26 @@ class Application {
         this.active_page = to
         document.body.appendChild(to.element)
         this.information.label.textContent = to.name
-        if (!pop) {
+        if (push) {
             history.pushState(null, null, to.link)
         }
     }
     browser_navigation(pop) {
         switch (document.location.pathname) {
             case '/':
-                this.switch_dashboard(pop)
+                this.switch_page('dashboard', pop)
                 break
             case '/retirement':
-                this.switch_retire_page(pop)
+                this.switch_page('retirement', pop)
                 break
             case '/budget':
-                this.switch_budget(pop)
+                this.switch_page('budget', pop)
                 break
             case '/register':
-                this.switch_register(pop)
+                this.switch_page('register', pop)
                 break
             case '/login':
-                this.switch_login(pop)
+                this.switch_page('login', pop)
                 break
         }
     }
@@ -87,56 +87,10 @@ class Application {
 window.onload = function () {
     let app = new Application()
     window.onpopstate = function (event) {
-        app.browser_navigation(true)
+        app.browser_navigation(false)
     }
 
-    if (document.location.pathname === '/retirement') {
-        Application.ImportScript('retirement.js', function () {
-            app.retire_page = new Retirement(app)
-
-            let to = app.retire_page
-            app.active_page = to
-            document.body.appendChild(to.element)
-            app.information.label.textContent = to.name
-        })
-
-    } else if (document.location.pathname === '/budget') {
-        Application.ImportScript('budget.js', function () {
-            app.budget_page = new Budget(app)
-
-            let to = app.budget_page
-            app.active_page = to
-            document.body.appendChild(to.element)
-            app.information.label.textContent = to.name
-        })
-    } else if (document.location.pathname === '/register') {
-        Application.ImportScript('register.js', function () {
-            app.register_page = new Register(app)
-
-            let to = app.register_page
-            app.active_page = to
-            document.body.appendChild(to.element)
-            app.information.label.textContent = to.name
-        })
-    } else if (document.location.pathname === '/login') {
-        Application.ImportScript('login.js', function () {
-            app.login_page = new Login(app)
-
-            let to = app.login_page
-            app.login_page = to
-            document.body.appendChild(to.element)
-            app.information.label.textContent = to.name
-        })
-    } else {
-        Application.ImportScript('dashboard.js', function () {
-            app.dashboard_page = new Dashboard(app)
-
-            let to = app.dashboard_page
-            app.dashboard_page = to
-            document.body.appendChild(to.element)
-            app.information.label.textContent = to.name
-        })
-    }
+    app.browser_navigation(false)
 
     const service = false
     if (service && 'serviceWorker' in navigator) {
