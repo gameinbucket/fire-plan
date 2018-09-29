@@ -23,6 +23,7 @@ var retireFields = [...]string{
 	"expenses",
 	"age",
 	"withdraw",
+	"death",
 }
 
 func saveRetire(store map[string]string, w http.ResponseWriter) {

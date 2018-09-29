@@ -27,7 +27,7 @@ class Login {
                 app.user.password = self.password.input.value
                 app.user.request_sign_in(function () {
                     app.navigation.profile_bar.update_display(app)
-                    app.switch_dashboard(false)
+                    app.switch_page('dashboard', true)
                 })
             }
         })
@@ -38,5 +38,8 @@ class Login {
         this.form = form
         this.create = create
         this.element = element
+    }
+    update(app) {
+
     }
 }

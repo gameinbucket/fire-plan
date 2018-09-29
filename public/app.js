@@ -14,6 +14,12 @@ class Application {
         document.body.appendChild(this.navigation.element)
         document.body.appendChild(this.information.element)
     }
+    static Currency(float) {
+        return float.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+    }
+    static Dollar(float) {
+        return '$ ' + Application.Currency(float)
+    }
     static ImportScript(src, call) {
         const script = document.createElement('script')
         script.src = src
@@ -54,6 +60,7 @@ class Application {
         if (this.active_page) {
             document.body.removeChild(this.active_page.element)
         }
+        to.update(this)
         this.active_page = to
         document.body.appendChild(to.element)
         this.information.label.textContent = to.name

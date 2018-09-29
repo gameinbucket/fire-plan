@@ -44,4 +44,7 @@ class Register {
         this.create = create
         this.element = element
     }
+    update(app) {
+
+    }
 }

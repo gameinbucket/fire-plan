@@ -122,7 +122,10 @@ class Budget {
         }
 
         element.appendChild(table)
-
+    }
+    update(app) {
+        if (app.user.not_in())
+            return
         let call = function (data) {
             let store = Pack.Parse(data)
             if (store['error']) {

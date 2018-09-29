@@ -5,10 +5,13 @@ class User {
         this.password = null
         this.validate_ticket()
     }
+    not_in() {
+        console.log(this.name, ',', this.ticket, ',', this.password)
+        return this.name === null || (this.ticket === null && this.password === null)
+    }
     validate_ticket() {
-        if (this.name === null || this.ticket === null) {
+        if (this.not_in())
             return
-        }
         let self = this
         let call = function (data) {
             if (data !== '') {

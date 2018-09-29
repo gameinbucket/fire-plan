@@ -23,11 +23,12 @@ class Retirement {
         this.annual_cash_saved = new Field(group, form, 'annual.cash', 'Annual Cash Saved $', '')
         this.annual_stock_invested = new Field(group, form, 'annual.stocks', 'Annual Stocks Invested $', '')
         this.annual_bond_invested = new Field(group, form, 'annual.bonds', 'Annual Bonds Invested $', '')
-        this.expenses = new Field(group, form, 'expenses', 'Retirement Expenses $', '')
+        this.expenses = new Field(group, form, 'expenses', 'Expenses $', '')
         this.age = new Field(group, form, 'age', 'Current Age', '')
         this.withdraw_rate = new Field(group, form, 'withdraw', 'Withdraw Rate %', '4.0')
+        this.death = new Field(group, form, 'death', 'Age to Live', '120')
 
-        this.calculate = new Button('Calculate', function () {
+        let calculate = new Button('Calculate', function () {
             let valid = true
             for (let key in self.form) {
                 if (self.form[key].invalid()) {
@@ -39,16 +40,37 @@ class Retirement {
             }
         })
 
+        let graph = document.createElement('div')
+        graph.style.display = 'table'
+        graph.style.width = '100%'
+        graph.style.height = '100%'
+        graph.style.marginTop = '1rem'
+        graph.style.marginBottom = '1rem'
+
         element.appendChild(group)
-        element.appendChild(this.calculate.element)
+        element.appendChild(calculate.element)
+        element.appendChild(graph)
 
-        this.result = null
+        this.graph = graph
         this.element = element
-
+        this.calculate = calculate
+    }
+    update(app) {
         this.request_data(app)
     }
     net_worth(cash, stocks, bonds) {
         return cash + stocks + bonds
+    }
+    new_table_cell(row, content) {
+        let cell = document.createElement('div')
+        cell.style.display = 'table-cell'
+        cell.style.padding = '0.5rem'
+        cell.style.color = 'black'
+        cell.style.textAlign = 'left'
+        cell.style.verticalAlign = 'middle'
+        cell.textContent = content
+        row.appendChild(cell)
+        return cell
     }
     do_calculate(app) {
         this.save_data(app)
@@ -66,11 +88,50 @@ class Retirement {
         let annual_bond_invested_value = parseFloat(this.annual_bond_invested.input.value)
         let expense_value = parseFloat(this.expenses.input.value)
         let age_value = parseFloat(this.age.input.value)
+        let death_value = parseFloat(this.death.input.value)
 
         let assets_required = expense_value / withdraw_rate_value
         let retirement_age = age_value
+        let net_assets = this.net_worth(current_cash_value, current_stocks_value, current_bonds_value)
 
-        while (this.net_worth(current_cash_value, current_stocks_value, current_bonds_value) < assets_required && current_cash_value > 0 && retirement_age < 999) {
+        let graph = this.graph
+
+        while (graph.firstChild) {
+            graph.removeChild(graph.firstChild)
+        }
+
+        let row = document.createElement('div')
+        row.style.display = 'table-row'
+        row.style.backgroundColor = 'rgb(212, 236, 250)'
+
+        let lastLeftCell = this.new_table_cell(row, 'Cash')
+        this.new_table_cell(row, 'Stocks')
+        this.new_table_cell(row, 'Bonds')
+        this.new_table_cell(row, 'Net Assets')
+        this.new_table_cell(row, 'Expenses')
+        this.new_table_cell(row, 'Age')
+        let lastRightCell = this.new_table_cell(row, 'Status')
+
+        lastLeftCell.style.borderTopLeftRadius = '0.2rem'
+        lastRightCell.style.borderTopRightRadius = '0.2rem'
+
+        graph.appendChild(row)
+
+        row = document.createElement('div')
+        row.style.display = 'table-row'
+        row.style.backgroundColor = 'rgb(212, 236, 250)'
+
+        lastLeftCell = this.new_table_cell(row, Application.Dollar(current_cash_value))
+        this.new_table_cell(row, Application.Dollar(current_stocks_value))
+        this.new_table_cell(row, Application.Dollar(current_bonds_value))
+        this.new_table_cell(row, Application.Dollar(net_assets))
+        this.new_table_cell(row, Application.Dollar(expense_value))
+        this.new_table_cell(row, retirement_age)
+        lastRightCell = this.new_table_cell(row, 'Working')
+
+        graph.appendChild(row)
+
+        while (net_assets < assets_required && current_cash_value > 0 && retirement_age < death_value) {
 
             current_cash_value += annual_cash_saved_value
             current_stocks_value += annual_stock_invested_value
@@ -79,67 +140,68 @@ class Retirement {
             current_cash_value *= 1.0 + cash_return_value
             current_stocks_value *= 1.0 + stock_return_value
             current_bonds_value *= 1.0 + bond_return_value
+            net_assets = this.net_worth(current_cash_value, current_stocks_value, current_bonds_value)
 
             expense_value *= 1.0 + inflation_value
             assets_required = expense_value / withdraw_rate_value
 
             retirement_age++
+
+            row = document.createElement('div')
+            row.style.display = 'table-row'
+            row.style.backgroundColor = 'rgb(212, 236, 250)'
+
+            lastLeftCell = this.new_table_cell(row, Application.Dollar(current_cash_value))
+            this.new_table_cell(row, Application.Dollar(current_stocks_value))
+            this.new_table_cell(row, Application.Dollar(current_bonds_value))
+            this.new_table_cell(row, Application.Dollar(net_assets))
+            this.new_table_cell(row, Application.Dollar(expense_value))
+            this.new_table_cell(row, retirement_age)
+            lastRightCell = this.new_table_cell(row, 'Working')
+
+            graph.appendChild(row)
         }
 
-        if (this.result === null) {
-            this.result = document.createElement('div')
-            this.page.appendChild(this.result)
+        row.style.backgroundColor = 'var(--main-color)'
+
+        while (retirement_age < death_value) {
+
+            current_cash_value -= expense_value
+            if (current_cash_value < 0) {
+                current_stocks_value += current_cash_value
+                current_cash_value = 0
+            }
+
+            current_cash_value *= 1.0 + cash_return_value
+            current_stocks_value *= 1.0 + stock_return_value
+            current_bonds_value *= 1.0 + bond_return_value
+            net_assets = this.net_worth(current_cash_value, current_stocks_value, current_bonds_value)
+
+            expense_value *= 1.0 + inflation_value
+
+            retirement_age++
+
+            row = document.createElement('div')
+            row.style.display = 'table-row'
+            row.style.backgroundColor = 'rgb(212, 236, 250)'
+
+            lastLeftCell = this.new_table_cell(row, Application.Dollar(current_cash_value))
+            this.new_table_cell(row, Application.Dollar(current_stocks_value))
+            this.new_table_cell(row, Application.Dollar(current_bonds_value))
+            this.new_table_cell(row, Application.Dollar(net_assets))
+            this.new_table_cell(row, Application.Dollar(expense_value))
+            this.new_table_cell(row, retirement_age)
+            lastRightCell = this.new_table_cell(row, 'Retired')
+
+            graph.appendChild(row)
         }
 
-        if (retirement_age === 999) {
-            retirement_age = 'Not able to retire.'
-        }
-
-        this.result.textContent = `Assets required: $ ${assets_required.toLocaleString()} Retirement Age: ${retirement_age}`
-    }
-    plot() {
-        let expense_list = [expense_value]
-        for (let i = 1; i < 25; i++) {
-            let current = expense_list[i - 1]
-            expense_list[i] = current * (1.0 + inflation_value)
-        }
-
-        let low = expense_value
-        let high = expense_list[expense_list.length - 1]
-        let range = high - low
-
-        let canvas = document.createElement('canvas')
-        let width = 200
-        let height = 200
-        canvas.width = width
-        canvas.height = height
-        let context = canvas.getContext('2d')
-        let image_data = context.getImageData(0, 0, width, height)
-        let data = image_data.data
-        for (let i = 0; i < data.length; i += 4) {
-            data[i] = 128
-            data[i + 1] = 255
-            data[i + 2] = 128
-            data[i + 3] = 255
-        }
-
-        for (let x = 0; x < expense_list.length; x++) {
-            let y = Math.floor((expense_list[x] - low) / range)
-            let index = (x + y * width) * 4
-            data[index] = 0
-            data[index + 1] = 0
-            data[index + 2] = 0
-        }
-
-        context.putImageData(image_data, 0, 0)
-
-        if (image === null) {
-            image = new Image()
-            page.appendChild(image)
-        }
-        image.src = canvas.toDataURL()
+        lastLeftCell.style.borderBottomLeftRadius = '0.2rem'
+        lastRightCell.style.borderBottomRightRadius = '0.2rem'
     }
     save_data(app) {
+        if (app.user.not_in())
+            return
         let call = function (data) {
             let store = Pack.Parse(data)
             if (store['error']) {
@@ -155,6 +217,8 @@ class Retirement {
         Network.Request(data, call)
     }
     request_data(app) {
+        if (app.user.not_in())
+            return
         let self = this
         let call = function (data) {
             let store = Pack.Parse(data)

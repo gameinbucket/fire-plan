@@ -25,4 +25,7 @@ class Dashboard {
         element.appendChild(retirement)
         element.appendChild(budget)
     }
+    update(app) {
+
+    }
 }
