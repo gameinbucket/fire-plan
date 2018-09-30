@@ -22,7 +22,6 @@ var retireFields = [...]string{
 	"annual.bonds",
 	"expenses",
 	"age",
-	"withdraw",
 	"death",
 }
 

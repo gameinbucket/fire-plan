@@ -14,11 +14,11 @@ class Application {
         document.body.appendChild(this.navigation.element)
         document.body.appendChild(this.information.element)
     }
-    static Currency(float) {
-        return float.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
+    static Currency(number) {
+        return number.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")
     }
-    static Dollar(float) {
-        return '$ ' + Application.Currency(float)
+    static Dollar(number) {
+        return '$ ' + Application.Currency(number)
     }
     static ImportScript(src, call) {
         const script = document.createElement('script')
